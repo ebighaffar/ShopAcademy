@@ -8,7 +8,7 @@ public class Order
     private readonly List<OrderItem> _items = [];
 
     public long Id { get; private set; }
-    public long UserId { get; private init; }
+    public long UserId { get; private set; }
     public OrderStatus Status { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public IReadOnlyCollection<OrderItem> Items => _items.AsReadOnly();

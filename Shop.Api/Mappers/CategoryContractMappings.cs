@@ -1,6 +1,7 @@
+using Shop.Api.Contracts.Categories;
 using Shop.Application.DTOs;
 
-namespace Shop.Api.Contracts.Categories;
+namespace Shop.Api.Mappers;
 
 public static class CategoryContractMappings
 {

@@ -16,7 +16,7 @@ public class CategoryService(ICategoryRepository categoryRepository)
     public async Task<CategoryDto> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
         var category = await categoryRepository.GetByIdAsync(id, cancellationToken)
-            ?? throw new EntityNotFoundException(nameof(Category), id);
+                       ?? throw new EntityNotFoundException(nameof(Category), id);
 
         return ToDto(category);
     }
@@ -32,10 +32,11 @@ public class CategoryService(ICategoryRepository categoryRepository)
         return ToDto(category);
     }
 
-    public async Task<CategoryDto> UpdateAsync(long id, UpdateCategoryDto dto, CancellationToken cancellationToken = default)
+    public async Task<CategoryDto> UpdateAsync(long id, UpdateCategoryDto dto,
+        CancellationToken cancellationToken = default)
     {
         var category = await categoryRepository.GetByIdAsync(id, cancellationToken)
-            ?? throw new EntityNotFoundException(nameof(Category), id);
+                       ?? throw new EntityNotFoundException(nameof(Category), id);
 
         category.Update(dto.Name, dto.Description);
         categoryRepository.Update(category);
@@ -47,7 +48,7 @@ public class CategoryService(ICategoryRepository categoryRepository)
     public async Task DeleteAsync(long id, CancellationToken cancellationToken = default)
     {
         var category = await categoryRepository.GetByIdAsync(id, cancellationToken)
-            ?? throw new EntityNotFoundException(nameof(Category), id);
+                       ?? throw new EntityNotFoundException(nameof(Category), id);
 
         categoryRepository.Remove(category);
         await categoryRepository.SaveChangesAsync(cancellationToken);

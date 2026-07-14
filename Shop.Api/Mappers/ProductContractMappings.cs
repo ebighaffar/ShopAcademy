@@ -1,6 +1,7 @@
+using Shop.Api.Contracts.Products;
 using Shop.Application.DTOs;
 
-namespace Shop.Api.Contracts.Products;
+namespace Shop.Api.Mappers;
 
 public static class ProductContractMappings
 {

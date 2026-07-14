@@ -1,3 +1,5 @@
+using Shop.Domain.Entities;
+
 namespace Shop.Application.DTOs;
 
 public record UserDto(
@@ -6,4 +8,5 @@ public record UserDto(
     string FirstName,
     string LastName,
     string PhoneNumber,
-    DateTimeOffset CreatedAt);
+    DateTimeOffset CreatedAt
+);

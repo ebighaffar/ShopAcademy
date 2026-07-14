@@ -13,8 +13,9 @@ public class Product
     public Money Price { get; private set; } = null!;
     public int Count { get; private set; }
     public long CategoryId { get; private set; }
-    public Category? Category { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
+    
+    public Category? Category { get; private init; }
 
 
     private Product()

@@ -1,6 +1,7 @@
+using Shop.Api.Contracts.Users;
 using Shop.Application.DTOs;
 
-namespace Shop.Api.Contracts.Users;
+namespace Shop.Api.Mappers;
 
 public static class UserContractMappings
 {

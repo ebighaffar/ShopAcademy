@@ -4,7 +4,7 @@ using Shop.Domain.Entities;
 
 namespace Shop.Infrastructure.Persistence.SqlServer.EfCore.Repositories;
 
-public class UserRepository(ShopDbContext context) : RepositoryBase<User, long>(context), IUserRepository
+public class UserRepository(ShopDbContext context) : RepositoryBase<User>(context), IUserRepository
 {
     public Task<User?> GetByIdWithBasketAsync(long id, CancellationToken cancellationToken = default)
         => Context.Users

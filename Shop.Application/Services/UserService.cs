@@ -1,12 +1,11 @@
 using Shop.Application.DTOs;
-using Shop.Application.Interfaces;
 using Shop.Application.Repository;
 using Shop.Domain.Entities;
 using Shop.Domain.Exceptions;
 
 namespace Shop.Application.Services;
 
-public class UserService(IUserRepository userRepository, IPasswordHasher passwordHasher)
+public class UserService(IUserRepository userRepository)
 {
     public async Task<UserDto> RegisterAsync(RegisterUserDto dto, CancellationToken cancellationToken = default)
     {
@@ -15,7 +14,7 @@ public class UserService(IUserRepository userRepository, IPasswordHasher passwor
             throw new DuplicateUserNameException();
 
         var user = new User(0, dto.FirstName, dto.LastName, dto.PhoneNumber);
-        user.SetCredentials(dto.UserName, passwordHasher.Hash(dto.Password));
+        //user.SetCredentials(dto.UserName, passwordHasher.Hash(dto.Password));
 
         await userRepository.AddAsync(user, cancellationToken);
         await userRepository.SaveChangesAsync(cancellationToken);

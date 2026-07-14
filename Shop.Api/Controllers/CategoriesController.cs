@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Shop.Api.Contracts.Categories;
+using Shop.Api.Mappers;
 using Shop.Application.Services;
 
 namespace Shop.Api.Controllers;
@@ -23,7 +24,8 @@ public class CategoriesController(CategoryService categoryService) : ControllerB
     }
 
     [HttpPost]
-    public async Task<ActionResult<CategoryResponse>> Create(CreateCategoryRequest request, CancellationToken cancellationToken)
+    public async Task<ActionResult<CategoryResponse>> Create(CreateCategoryRequest request,
+        CancellationToken cancellationToken)
     {
         var category = await categoryService.CreateAsync(request.ToDto(), cancellationToken);
         var response = category.ToResponse();
@@ -31,7 +33,8 @@ public class CategoriesController(CategoryService categoryService) : ControllerB
     }
 
     [HttpPut("{id:long}")]
-    public async Task<ActionResult<CategoryResponse>> Update(long id, UpdateCategoryRequest request, CancellationToken cancellationToken)
+    public async Task<ActionResult<CategoryResponse>> Update(long id, UpdateCategoryRequest request,
+        CancellationToken cancellationToken)
     {
         var category = await categoryService.UpdateAsync(id, request.ToDto(), cancellationToken);
         return Ok(category.ToResponse());

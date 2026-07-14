@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Shop.Api.Contracts.Users;
+using Shop.Api.Mappers;
 using Shop.Application.Services;
 
 namespace Shop.Api.Controllers;

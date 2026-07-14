@@ -3,13 +3,13 @@ using Shop.Application.Repository;
 
 namespace Shop.Infrastructure.Persistence.SqlServer.EfCore.Repositories;
 
-public abstract class RepositoryBase<TEntity, TKey>(ShopDbContext context) : IRepository<TEntity, TKey>
+public abstract class RepositoryBase<TEntity>(ShopDbContext context) : IRepository<TEntity>
     where TEntity : class
 {
     protected readonly ShopDbContext Context = context;
     protected readonly DbSet<TEntity> DbSet = context.Set<TEntity>();
 
-    public virtual async Task<TEntity?> GetByIdAsync(TKey id, CancellationToken cancellationToken = default)
+    public virtual async Task<TEntity?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
         => await DbSet.FindAsync([id], cancellationToken);
 
     public virtual async Task<IReadOnlyList<TEntity>> GetAllAsync(CancellationToken cancellationToken = default)
