@@ -1,3 +1,5 @@
+using FluentValidation;
+using Shop.Api.Filters;
 using Shop.Api.Middleware;
 using Shop.Application;
 using Shop.Infrastructure;
@@ -8,7 +10,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
 
-builder.Services.AddControllers();
+builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
+builder.Services.AddControllers(options => options.Filters.Add<ValidationFilter>());
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 

@@ -24,7 +24,7 @@ public class ProductService(IProductRepository productRepository)
 
     public async Task<ProductDto> CreateAsync(CreateProductDto dto, CancellationToken cancellationToken = default)
     {
-        var product = new Product(0, dto.Name, new Money(dto.PriceAmount, dto.PriceCurrency), dto.CategoryId);
+        var product = new Product(dto.Name, dto.Description, new Money(dto.PriceAmount, dto.PriceCurrency), dto.Count, dto.CategoryId);
 
         await productRepository.AddAsync(product, cancellationToken);
         await productRepository.SaveChangesAsync(cancellationToken);

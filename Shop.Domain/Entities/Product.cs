@@ -14,7 +14,7 @@ public class Product
     public int Count { get; private set; }
     public long CategoryId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    
+
     public Category? Category { get; private init; }
 
 
@@ -22,14 +22,14 @@ public class Product
     {
     }
 
-    public Product(long id, string name, Money price, long categoryId)
+    public Product(string name, string? description, Money price, int count, long categoryId)
     {
-        Id = id;
         Name = name;
+        Description = description;
         IsActive = true;
         IsDeleted = false;
         Price = price;
-        Count = 0;
+        Count = count;
         CategoryId = categoryId;
         CreatedAt = DateTimeOffset.UtcNow;
     }
@@ -45,7 +45,7 @@ public class Product
     {
         IsActive = !IsActive;
     }
-    
+
     public void IncreasePrice(decimal amount)
     {
         if (amount <= 0)

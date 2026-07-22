@@ -10,5 +10,6 @@ public static class DependencyInjection
         services.AddScoped<ProductService>();
         services.AddScoped<CategoryService>();
         services.AddScoped<UserService>();
+        services.AddScoped<ExceptionLogService>();
     }
 }

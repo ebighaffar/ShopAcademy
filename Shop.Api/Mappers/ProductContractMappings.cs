@@ -21,6 +21,7 @@ public static class ProductContractMappings
         request.Description,
         request.PriceAmount,
         request.PriceCurrency,
+        request.Count,
         request.CategoryId);
 
     public static UpdateProductDto ToDto(this UpdateProductRequest request) => new(

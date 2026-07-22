@@ -11,8 +11,8 @@ public class User
     public string LastName { get; private set; } = null!;
     public string PhoneNumber { get; private set; } = null!;
     public AddressValueObject? Address { get; private set; }
-    public Basket? Basket { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
+    public Basket? Basket { get; private set; }
 
     private User()
     {

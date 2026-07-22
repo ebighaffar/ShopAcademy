@@ -1,0 +1,23 @@
+using FluentValidation;
+using Shop.Api.Contracts.Categories;
+using Shop.Api.Validators.Messages;
+using Shop.Domain.Constants;
+
+namespace Shop.Api.Validators.Validations.Category;
+
+public class UpdateCategoryValidator : AbstractValidator<UpdateCategoryRequest>
+{
+    public UpdateCategoryValidator()
+    {
+        RuleFor(request => request.Name)
+            .NotEmpty()
+            .WithMessage(CategoryValidationMessages.NameRequiredMessage)
+            .MaximumLength(CategoryConstants.NameMaxLength)
+            .WithMessage(CategoryValidationMessages.NameMaxLengthMessage);
+
+        RuleFor(request => request.Description)
+            .MaximumLength(CategoryConstants.DescriptionMaxLength)
+            .WithMessage(CategoryValidationMessages.DescriptionMaxLengthMessage)
+            .When(request => request.Description is not null);
+    }
+}

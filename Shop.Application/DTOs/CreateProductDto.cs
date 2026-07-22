@@ -7,4 +7,5 @@ public record CreateProductDto(
     string? Description,
     decimal PriceAmount,
     Currency PriceCurrency,
+    int Count,
     long CategoryId);
