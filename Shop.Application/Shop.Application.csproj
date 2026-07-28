@@ -12,7 +12,7 @@
 
     <ItemGroup>
       <Folder Include="Exceptions\" />
-      <Folder Include="Repository\" />
+      <Folder Include="Repositories\" />
     </ItemGroup>
 
     <ItemGroup>

@@ -1,7 +1,7 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Dapper;
-using Shop.Application.Repository;
+using Shop.Application.Repositories;
 using Shop.Domain.Entities;
 using Shop.Domain.Enums;
 using Shop.Domain.ValueObjects;

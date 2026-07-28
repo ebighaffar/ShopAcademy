@@ -1,6 +1,6 @@
 using Shop.Domain.Entities;
 
-namespace Shop.Application.Repository;
+namespace Shop.Application.Repositories;
 
 public interface IOrderRepository : IRepository<Order>
 {

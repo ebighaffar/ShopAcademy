@@ -1,6 +1,6 @@
 using Shop.Domain.Entities;
 
-namespace Shop.Application.Repository;
+namespace Shop.Application.Repositories;
 
 /// <summary>
 /// Append-and-read store for captured exceptions. Backed by MongoDB, so it does

@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using Shop.Application.Repository;
+using Shop.Application.Repositories;
 using Shop.Domain.Entities;
 
 namespace Shop.Infrastructure.Persistence.PostgreSql.EfCore.Repositories;

@@ -1,5 +1,5 @@
 using Shop.Application.DTOs;
-using Shop.Application.Repository;
+using Shop.Application.Repositories;
 using Shop.Domain.Entities;
 using Shop.Domain.Exceptions;
 
