@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Shop.Application.Caching;
+using Shop.Application.Interfaces;
 using Shop.Application.Repositories;
 using Shop.Infrastructure.Caching.Redis;
 using Shop.Infrastructure.Persistence.Mongo;

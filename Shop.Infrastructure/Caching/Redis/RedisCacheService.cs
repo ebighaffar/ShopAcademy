@@ -1,6 +1,6 @@
 using System.Text.Json;
 using Microsoft.Extensions.Options;
-using Shop.Application.Caching;
+using Shop.Application.Interfaces;
 using StackExchange.Redis;
 
 namespace Shop.Infrastructure.Caching.Redis;

@@ -1,3 +1,4 @@
+using Shop.Application.Caching;
 using Shop.Application.DTOs;
 using Shop.Application.Repositories;
 using Shop.Domain.Entities;
@@ -6,21 +7,19 @@ using Shop.Domain.ValueObjects;
 
 namespace Shop.Application.Services;
 
-public class ProductService(IProductRepository productRepository)
+public class ProductService(IProductRepository productRepository, ProductCache productCache)
 {
-    public async Task<IReadOnlyList<ProductDto>> GetAllAsync(CancellationToken cancellationToken = default)
-    {
-        var products = await productRepository.GetAllAsync(cancellationToken);
-        return products.Select(ToDto).ToList();
-    }
+    public Task<IReadOnlyList<ProductDto>> GetAllAsync(CancellationToken cancellationToken = default)
+        => productCache.GetAllAsync(
+            async ct => (await productRepository.GetAllAsync(ct)).Select(ToDto).ToList(),
+            cancellationToken);
 
-    public async Task<ProductDto> GetByIdAsync(long id, CancellationToken cancellationToken = default)
-    {
-        var product = await productRepository.GetByIdAsync(id, cancellationToken)
-                      ?? throw new EntityNotFoundException(nameof(Product), id);
-
-        return ToDto(product);
-    }
+    public Task<ProductDto> GetByIdAsync(long id, CancellationToken cancellationToken = default)
+        => productCache.GetByIdAsync(
+            id,
+            async ct => ToDto(await productRepository.GetByIdAsync(id, ct)
+                              ?? throw new EntityNotFoundException(nameof(Product), id)),
+            cancellationToken);
 
     public async Task<ProductDto> CreateAsync(CreateProductDto dto, CancellationToken cancellationToken = default)
     {
@@ -28,6 +27,8 @@ public class ProductService(IProductRepository productRepository)
 
         await productRepository.AddAsync(product, cancellationToken);
         await productRepository.SaveChangesAsync(cancellationToken);
+
+        await productCache.InvalidateAsync(product.Id, cancellationToken);
 
         return ToDto(product);
     }
@@ -42,6 +43,8 @@ public class ProductService(IProductRepository productRepository)
         productRepository.Update(product);
         await productRepository.SaveChangesAsync(cancellationToken);
 
+        await productCache.InvalidateAsync(id, cancellationToken);
+
         return ToDto(product);
     }
 
@@ -52,6 +55,8 @@ public class ProductService(IProductRepository productRepository)
 
         productRepository.Update(product);
         await productRepository.SaveChangesAsync(cancellationToken);
+
+        await productCache.InvalidateAsync(id, cancellationToken);
     }
 
     private static ProductDto ToDto(Product product) => new(

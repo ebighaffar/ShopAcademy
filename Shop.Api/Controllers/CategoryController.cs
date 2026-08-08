@@ -28,7 +28,6 @@ public class CategoryController(CategoryService categoryService) : ControllerBas
     public async Task<ActionResult<CategoryResponse>> Create(CreateCategoryRequest request,
         CancellationToken cancellationToken)
     {
-        throw new NullReferenceException("Test for mongo");
         var category = await categoryService.CreateAsync(request.ToDto(), cancellationToken);
         var response = category.ToResponse();
         return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);

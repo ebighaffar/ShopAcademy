@@ -1,4 +1,4 @@
-namespace Shop.Application.Caching;
+namespace Shop.Application.Interfaces;
 
 /// <summary>
 /// Abstraction over a distributed cache. The Application layer depends only on this

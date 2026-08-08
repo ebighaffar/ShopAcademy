@@ -1,5 +1,5 @@
-using Shop.Application.Caching;
 using Shop.Application.DTOs;
+using Shop.Application.Interfaces;
 using Shop.Application.Repositories;
 using Shop.Domain.Entities;
 using Shop.Domain.Exceptions;
