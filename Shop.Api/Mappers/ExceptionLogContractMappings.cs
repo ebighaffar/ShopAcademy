@@ -1,4 +1,4 @@
-using Shop.Api.Contracts.ExceptionLogs;
+using Shop.Api.Contracts.ExceptionLog;
 using Shop.Application.DTOs;
 
 namespace Shop.Api.Mappers;

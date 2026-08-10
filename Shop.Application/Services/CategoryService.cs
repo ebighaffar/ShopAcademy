@@ -6,12 +6,13 @@ using Shop.Domain.Exceptions;
 
 namespace Shop.Application.Services;
 
-public class CategoryService(ICategoryRepository categoryRepository, ICacheService cacheService)
+public class CategoryService(
+    ICategoryRepository categoryRepository,
+    ICacheService cacheService
+)
 {
     private static readonly TimeSpan CacheExpiration = TimeSpan.FromMinutes(10);
-
     private const string AllCategoriesCacheKey = "categories:all";
-
     private static string CategoryCacheKey(long id) => $"categories:{id}";
 
     public Task<IReadOnlyList<CategoryDto>> GetAllAsync(CancellationToken cancellationToken = default)

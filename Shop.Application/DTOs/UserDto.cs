@@ -1,5 +1,3 @@
-using Shop.Domain.Entities;
-
 namespace Shop.Application.DTOs;
 
 public record UserDto(

@@ -58,6 +58,6 @@ public static class DependencyInjection
         services.Configure<RedisSettings>(configuration.GetSection(RedisSettings.SectionName));
 
         services.AddSingleton<RedisConnection>();
-        services.AddSingleton<ICacheService, RedisCacheService>();
+        services.AddScoped<ICacheService, RedisCacheService>();
     }
 }

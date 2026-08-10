@@ -1,4 +1,4 @@
-using Shop.Api.Contracts.Products;
+using Shop.Api.Contracts.Product;
 using Shop.Application.DTOs;
 
 namespace Shop.Api.Mappers;

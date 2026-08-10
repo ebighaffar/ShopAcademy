@@ -1,6 +1,6 @@
 using Shop.Domain.Enums;
 
-namespace Shop.Api.Contracts.Products;
+namespace Shop.Api.Contracts.Product;
 
 public record ProductResponse(
     long Id,

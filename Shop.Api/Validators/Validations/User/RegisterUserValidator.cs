@@ -1,5 +1,5 @@
 using FluentValidation;
-using Shop.Api.Contracts.Users;
+using Shop.Api.Contracts.User;
 using Shop.Api.Validators.Messages;
 
 namespace Shop.Api.Validators.Validations.User;

@@ -7,7 +7,10 @@ using Shop.Domain.ValueObjects;
 
 namespace Shop.Application.Services;
 
-public class ProductService(IProductRepository productRepository, ProductCache productCache)
+public class ProductService(
+    IProductRepository productRepository,
+    ProductCache productCache
+    )
 {
     public Task<IReadOnlyList<ProductDto>> GetAllAsync(CancellationToken cancellationToken = default)
         => productCache.GetAllAsync(

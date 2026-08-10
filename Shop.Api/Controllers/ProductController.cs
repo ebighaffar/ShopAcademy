@@ -1,47 +1,47 @@
 using Microsoft.AspNetCore.Mvc;
-using Shop.Api.Contracts.Products;
+using Shop.Api.Contracts.Product;
+using Shop.Api.Constants;
+using Shop.Api.Contracts;
 using Shop.Api.Mappers;
 using Shop.Application.Services;
 
 namespace Shop.Api.Controllers;
 
-[ApiController]
-[Route("api/[controller]")]
-public class ProductController(ProductService productService) : ControllerBase
+public class ProductController(ProductService productService) : BaseController
 {
-    [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<ProductResponse>>> GetAll(CancellationToken cancellationToken)
+    [HttpGet(ProductUriConstants.GetAll)]
+    public async Task<ApiResult<IReadOnlyList<ProductResponse>>> GetAll(CancellationToken cancellationToken)
     {
         var products = await productService.GetAllAsync(cancellationToken);
-        return Ok(products.Select(p => p.ToResponse()));
+        return products.Select(p => p.ToResponse()).ToList();
     }
 
-    [HttpGet("{id:long}")]
-    public async Task<ActionResult<ProductResponse>> GetById(long id, CancellationToken cancellationToken)
+    [HttpGet(ProductUriConstants.GetById)]
+    public async Task<ApiResult<ProductResponse>> GetById(long id, CancellationToken cancellationToken)
     {
         var product = await productService.GetByIdAsync(id, cancellationToken);
-        return Ok(product.ToResponse());
+        return product.ToResponse();
     }
 
-    [HttpPost]
-    public async Task<ActionResult<ProductResponse>> Create(CreateProductRequest request, CancellationToken cancellationToken)
+    [HttpPost(ProductUriConstants.Create)]
+    public async Task<ApiResult<ProductResponse>> Create(CreateProductRequest request, CancellationToken cancellationToken)
     {
         var product = await productService.CreateAsync(request.ToDto(), cancellationToken);
         var response = product.ToResponse();
-        return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
+        return ApiResult<ProductResponse>.Created(response, $"/api/v1/products/{response.Id}");
     }
 
-    [HttpPut("{id:long}")]
-    public async Task<ActionResult<ProductResponse>> Update(long id, UpdateProductRequest request, CancellationToken cancellationToken)
+    [HttpPut(ProductUriConstants.Update)]
+    public async Task<ApiResult<ProductResponse>> Update(long id, UpdateProductRequest request, CancellationToken cancellationToken)
     {
         var product = await productService.UpdateAsync(id, request.ToDto(), cancellationToken);
-        return Ok(product.ToResponse());
+        return product.ToResponse();
     }
 
-    [HttpDelete("{id:long}")]
-    public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
+    [HttpDelete(ProductUriConstants.Delete)]
+    public async Task<ApiResult> Delete(long id, CancellationToken cancellationToken)
     {
         await productService.DeleteAsync(id, cancellationToken);
-        return NoContent();
+        return ApiResult.NoContent();
     }
 }

@@ -1,4 +1,4 @@
-namespace Shop.Api.Contracts.Users;
+namespace Shop.Api.Contracts.User;
 
 public record UserResponse(
     long Id,

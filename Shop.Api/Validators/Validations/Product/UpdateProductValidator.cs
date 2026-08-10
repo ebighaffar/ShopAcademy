@@ -1,5 +1,5 @@
 using FluentValidation;
-using Shop.Api.Contracts.Products;
+using Shop.Api.Contracts.Product;
 using Shop.Api.Validators.Messages;
 using Shop.Domain.Constants;
 

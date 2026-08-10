@@ -1,4 +1,4 @@
-namespace Shop.Api.Contracts.ExceptionLogs;
+namespace Shop.Api.Contracts.ExceptionLog;
 
 public record ExceptionLogResponse(
     string Id,

@@ -1,34 +1,34 @@
 using Microsoft.AspNetCore.Mvc;
-using Shop.Api.Contracts.ExceptionLogs;
+using Shop.Api.Contracts.ExceptionLog;
+using Shop.Api.Constants;
+using Shop.Api.Contracts;
 using Shop.Api.Mappers;
 using Shop.Application.Services;
 
 namespace Shop.Api.Controllers;
 
-[ApiController]
-[Route("api/[controller]")]
-public class ExceptionLogController(ExceptionLogService exceptionLogService) : ControllerBase
+public class ExceptionLogController(ExceptionLogService exceptionLogService) : BaseController
 {
-    [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<ExceptionLogResponse>>> GetAll(CancellationToken cancellationToken)
+    [HttpGet(ExceptionLogUriConstants.GetAll)]
+    public async Task<ApiResult<IReadOnlyList<ExceptionLogResponse>>> GetAll(CancellationToken cancellationToken)
     {
         var logs = await exceptionLogService.GetAllAsync(cancellationToken);
-        return Ok(logs.Select(l => l.ToResponse()));
+        return logs.Select(l => l.ToResponse()).ToList();
     }
 
-    [HttpGet("recent")]
-    public async Task<ActionResult<IReadOnlyList<ExceptionLogResponse>>> GetRecent(
+    [HttpGet(ExceptionLogUriConstants.GetRecent)]
+    public async Task<ApiResult<IReadOnlyList<ExceptionLogResponse>>> GetRecent(
         [FromQuery] int count = 20,
         CancellationToken cancellationToken = default)
     {
         var logs = await exceptionLogService.GetRecentAsync(count, cancellationToken);
-        return Ok(logs.Select(l => l.ToResponse()));
+        return logs.Select(l => l.ToResponse()).ToList();
     }
 
-    [HttpGet("{id}")]
-    public async Task<ActionResult<ExceptionLogResponse>> GetById(string id, CancellationToken cancellationToken)
+    [HttpGet(ExceptionLogUriConstants.GetById)]
+    public async Task<ApiResult<ExceptionLogResponse>> GetById(string id, CancellationToken cancellationToken)
     {
         var log = await exceptionLogService.GetByIdAsync(id, cancellationToken);
-        return Ok(log.ToResponse());
+        return log.ToResponse();
     }
 }

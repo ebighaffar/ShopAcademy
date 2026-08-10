@@ -11,7 +11,11 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
 
 builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
-builder.Services.AddControllers(options => options.Filters.Add<ValidationFilter>());
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ValidationFilter>();
+    //options.Filters.Add<ApiResultFilter>();
+});
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -22,12 +26,15 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(opt => { opt.DisplayRequestDuration(); });
 }
 
-app.UseMiddleware<ExceptionHandlingMiddleware>();
-
 app.UseHttpsRedirection();
+
+// ApiResultMiddleware is outside the exception handler so both normal action
+// results and errors produced by ExceptionHandlingMiddleware share one envelope.
+app.UseMiddleware<ApiResultMiddleware>();
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseAuthorization();
 

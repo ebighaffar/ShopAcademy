@@ -1,4 +1,4 @@
-namespace Shop.Api.Contracts.Products;
+namespace Shop.Api.Contracts.Product;
 
 public record UpdateProductRequest(
     string Name,
