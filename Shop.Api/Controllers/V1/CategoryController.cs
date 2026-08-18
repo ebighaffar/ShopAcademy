@@ -3,14 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using Shop.Api.Constants;
 using Shop.Api.Contracts;
 using Shop.Api.Contracts.Category;
-using Shop.Api.Controllers;
 using Shop.Api.Mappers;
 using Shop.Application.Services;
 
 namespace Shop.Api.Controllers.V1;
 
 [ApiVersion(1.0)]
-public class CategoryController(CategoryService categoryService) : ApiControllerBase
+public class CategoryController(CategoryService categoryService) : BaseController
 {
     [HttpGet(CategoryUriConstants.GetAll)]
     public async Task<ApiResult<IReadOnlyList<CategoryResponse>>> GetAll(CancellationToken cancellationToken)

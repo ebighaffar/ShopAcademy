@@ -1,13 +1,6 @@
-using Asp.Versioning;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OData.Query;
-using Microsoft.AspNetCore.OData.Results;
-using Microsoft.AspNetCore.OData.Routing.Controllers;
-using Shop.Application.Repositories;
-using Shop.Domain.Entities;
-
 namespace Shop.Api.Controllers;
 
+/* OData is temporarily disabled.
 /// <summary>
 /// Read-only, version-neutral OData endpoint for products.
 /// </summary>
@@ -35,3 +28,4 @@ public sealed class ProductsController(
             productRepository.GetAllAsQueryable().Where(product => product.Id == key));
     }
 }
+*/

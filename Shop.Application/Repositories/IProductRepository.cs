@@ -1,4 +1,3 @@
-using System.Linq;
 using Shop.Domain.Entities;
 
 namespace Shop.Application.Repositories;

@@ -1,16 +1,16 @@
 using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
+using Scalar.AspNetCore.Attributes;
 using Shop.Api.Constants;
 using Shop.Api.Contracts;
 using Shop.Api.Contracts.Product;
-using Shop.Api.Controllers;
 using Shop.Api.Mappers;
 using Shop.Application.Services;
 
 namespace Shop.Api.Controllers.V1;
 
 [ApiVersion(1.0)]
-public class ProductController(ProductService productService) : ApiControllerBase
+public class ProductController(ProductService productService) : BaseController
 {
     [HttpGet(ProductUriConstants.GetAll)]
     public async Task<ApiResult<List<ProductResponse>>> GetAll([FromQuery] ProductListFilter inputFilter,
