@@ -7,7 +7,7 @@ public sealed class ApiResult(
     int status,
     object? error = null,
     string? location = null
-) : IActionResult
+) :IActionResult
 {
     public bool Success { get; } = success;
 

@@ -5,6 +5,13 @@ namespace Shop.Api.Mappers;
 
 public static class ProductContractMappings
 {
+    public static ProductListFilterDto ToDto(this ProductListFilter filter) =>
+        new(filter.SearchPhase,
+            filter.CategoryId,
+            filter.MinCount,
+            filter.MaxPrice
+        );
+
     public static ProductResponse ToResponse(this ProductDto dto) => new(
         dto.Id,
         dto.Name,

@@ -49,7 +49,7 @@ public sealed class ApiResultMiddleware(RequestDelegate next)
             var status = context.Response.StatusCode;
             var result = status is >= StatusCodes.Status200OK and < StatusCodes.Status300MultipleChoices
                 ? ApiResult<object?>.Succeeded(payload, status)
-                : ApiResult<object?>.Failed(payload ?? GetDefaultError(status), status);
+                : ApiResult.Failed(payload ?? GetDefaultError(status), status);
 
             await JsonSerializer.SerializeAsync(
                 originalBody,

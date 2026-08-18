@@ -1,13 +1,16 @@
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
-using Shop.Api.Contracts.Category;
 using Shop.Api.Constants;
 using Shop.Api.Contracts;
+using Shop.Api.Contracts.Category;
+using Shop.Api.Controllers;
 using Shop.Api.Mappers;
 using Shop.Application.Services;
 
-namespace Shop.Api.Controllers;
+namespace Shop.Api.Controllers.V1;
 
-public class CategoryController(CategoryService categoryService) : BaseController
+[ApiVersion(1.0)]
+public class CategoryController(CategoryService categoryService) : ApiControllerBase
 {
     [HttpGet(CategoryUriConstants.GetAll)]
     public async Task<ApiResult<IReadOnlyList<CategoryResponse>>> GetAll(CancellationToken cancellationToken)

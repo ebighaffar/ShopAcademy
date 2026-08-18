@@ -1,13 +1,16 @@
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
-using Shop.Api.Contracts.ExceptionLog;
 using Shop.Api.Constants;
 using Shop.Api.Contracts;
+using Shop.Api.Contracts.ExceptionLog;
+using Shop.Api.Controllers;
 using Shop.Api.Mappers;
 using Shop.Application.Services;
 
-namespace Shop.Api.Controllers;
+namespace Shop.Api.Controllers.V1;
 
-public class ExceptionLogController(ExceptionLogService exceptionLogService) : BaseController
+[ApiVersion(1.0)]
+public class ExceptionLogController(ExceptionLogService exceptionLogService) : ApiControllerBase
 {
     [HttpGet(ExceptionLogUriConstants.GetAll)]
     public async Task<ApiResult<IReadOnlyList<ExceptionLogResponse>>> GetAll(CancellationToken cancellationToken)

@@ -10,11 +10,13 @@ namespace Shop.Application.Services;
 public class ProductService(
     IProductRepository productRepository,
     ProductCache productCache
-    )
+)
 {
-    public Task<IReadOnlyList<ProductDto>> GetAllAsync(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<ProductDto>> GetAllAsync(ProductListFilterDto filterInput,
+        CancellationToken cancellationToken = default)
         => productCache.GetAllAsync(
-            async ct => (await productRepository.GetAllAsync(ct)).Select(ToDto).ToList(),
+            async ct => (await productRepository.GetAllAsync(filterInput.SearchPhase, filterInput.CategoryId,
+                filterInput.MinCount, filterInput.MaxPrice, ct)).Select(ToDto).ToList(),
             cancellationToken);
 
     public Task<ProductDto> GetByIdAsync(long id, CancellationToken cancellationToken = default)
@@ -26,7 +28,8 @@ public class ProductService(
 
     public async Task<ProductDto> CreateAsync(CreateProductDto dto, CancellationToken cancellationToken = default)
     {
-        var product = new Product(dto.Name, dto.Description, new Money(dto.PriceAmount, dto.PriceCurrency), dto.Count, dto.CategoryId);
+        var product = new Product(dto.Name, dto.Description, new Money(dto.PriceAmount, dto.PriceCurrency), dto.Count,
+            dto.CategoryId);
 
         await productRepository.AddAsync(product, cancellationToken);
         await productRepository.SaveChangesAsync(cancellationToken);

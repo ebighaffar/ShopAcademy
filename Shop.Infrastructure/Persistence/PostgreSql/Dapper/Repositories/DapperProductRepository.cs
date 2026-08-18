@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Dapper;
@@ -49,6 +50,20 @@ public class DapperProductRepository(IDbConnectionFactory connectionFactory) : I
         var rows = await connection.QueryAsync(command);
 
         return rows.Select(MapToProduct).ToList();
+    }
+
+    public Task<List<Product>> GetAllAsync(string? searchPhase, long? categoryId, long? minCount, long? maxPrice,
+        CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IQueryable<Product> GetAllAsQueryable()
+    {
+        // Dapper doesn't support true IQueryable, so we load all data and return as in-memory query
+        // For production, consider using EF Core implementation for OData queries
+        var allProducts = GetAllAsync(default).GetAwaiter().GetResult();
+        return allProducts.AsQueryable();
     }
 
     public Task AddAsync(Product entity, CancellationToken cancellationToken = default)

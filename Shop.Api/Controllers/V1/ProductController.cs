@@ -1,30 +1,37 @@
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
-using Shop.Api.Contracts.Product;
 using Shop.Api.Constants;
 using Shop.Api.Contracts;
+using Shop.Api.Contracts.Product;
+using Shop.Api.Controllers;
 using Shop.Api.Mappers;
 using Shop.Application.Services;
 
-namespace Shop.Api.Controllers;
+namespace Shop.Api.Controllers.V1;
 
-public class ProductController(ProductService productService) : BaseController
+[ApiVersion(1.0)]
+public class ProductController(ProductService productService) : ApiControllerBase
 {
     [HttpGet(ProductUriConstants.GetAll)]
-    public async Task<ApiResult<IReadOnlyList<ProductResponse>>> GetAll(CancellationToken cancellationToken)
+    public async Task<ApiResult<List<ProductResponse>>> GetAll([FromQuery] ProductListFilter inputFilter,
+        CancellationToken cancellationToken)
     {
-        var products = await productService.GetAllAsync(cancellationToken);
+        var products = await productService.GetAllAsync(inputFilter.ToDto(), cancellationToken);
         return products.Select(p => p.ToResponse()).ToList();
     }
 
     [HttpGet(ProductUriConstants.GetById)]
-    public async Task<ApiResult<ProductResponse>> GetById(long id, CancellationToken cancellationToken)
+    public async Task<ApiResult<ProductResponse>> GetById(long id, long categoryId,
+        CancellationToken cancellationToken)
     {
         var product = await productService.GetByIdAsync(id, cancellationToken);
-        return product.ToResponse();
+        var response = product.ToResponse();
+        return response;
     }
 
     [HttpPost(ProductUriConstants.Create)]
-    public async Task<ApiResult<ProductResponse>> Create(CreateProductRequest request, CancellationToken cancellationToken)
+    public async Task<ApiResult<ProductResponse>> Create(CreateProductRequest request,
+        CancellationToken cancellationToken)
     {
         var product = await productService.CreateAsync(request.ToDto(), cancellationToken);
         var response = product.ToResponse();
@@ -32,7 +39,8 @@ public class ProductController(ProductService productService) : BaseController
     }
 
     [HttpPut(ProductUriConstants.Update)]
-    public async Task<ApiResult<ProductResponse>> Update(long id, UpdateProductRequest request, CancellationToken cancellationToken)
+    public async Task<ApiResult<ProductResponse>> Update(long id, UpdateProductRequest request,
+        CancellationToken cancellationToken)
     {
         var product = await productService.UpdateAsync(id, request.ToDto(), cancellationToken);
         return product.ToResponse();
