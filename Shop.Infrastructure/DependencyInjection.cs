@@ -3,6 +3,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Shop.Application.Interfaces;
 using Shop.Application.Repositories;
+using Shop.Infrastructure.Authentication;
+using Shop.Infrastructure.Authorization;
 using Shop.Infrastructure.Caching.Redis;
 using Shop.Infrastructure.Persistence.Mongo;
 using Shop.Infrastructure.Persistence.Mongo.Repositories;
@@ -17,13 +19,20 @@ public static class DependencyInjection
 {
     public static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddAuthenticationInfrastructure(configuration);
+
         services.AddDbContext<ShopDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("Postgres")));
 
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IRoleRepository, RoleRepository>();
+        services.AddScoped<IPermissionRepository, PermissionRepository>();
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
+        services.AddScoped<IUserPermissionService, UserPermissionService>();
+        services.AddScoped<IdentityDataSeeder>();
 
         // Dapper is wired up alongside EF Core: same "Default" connection string, same IProductRepository
         // contract. Registered under its concrete type (not IProductRepository) so it doesn't replace the
@@ -33,6 +42,29 @@ public static class DependencyInjection
 
         services.AddMongo(configuration);
         services.AddRedis(configuration);
+    }
+
+    private static void AddAuthenticationInfrastructure(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        services.AddOptions<JwtSettings>()
+            .Bind(configuration.GetRequiredSection(JwtSettings.SectionName))
+            .Validate(settings => !string.IsNullOrWhiteSpace(settings.Issuer),
+                "Jwt:Issuer is required.")
+            .Validate(settings => !string.IsNullOrWhiteSpace(settings.Audience),
+                "Jwt:Audience is required.")
+            .Validate(settings => !string.IsNullOrWhiteSpace(settings.Key) && settings.Key.Length >= 32,
+                "Jwt:Key must be at least 32 characters long.")
+            .Validate(settings => settings.AccessTokenMinutes > 0,
+                "Jwt:AccessTokenMinutes must be greater than zero.")
+            .Validate(settings => settings.RefreshTokenDays > 0,
+                "Jwt:RefreshTokenDays must be greater than zero.")
+            .ValidateOnStart();
+
+        services.AddScoped<ITokenService, JwtTokenService>();
+        services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+        services.AddScoped<IPasswordHasher, PasswordHasher>();
     }
 
     // MongoDB coexists with EF Core / Dapper. It backs a separate concern — captured

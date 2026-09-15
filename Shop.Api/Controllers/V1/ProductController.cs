@@ -1,6 +1,8 @@
 using Asp.Versioning;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Scalar.AspNetCore.Attributes;
+using Shop.Api.Authentication;
 using Shop.Api.Constants;
 using Shop.Api.Contracts;
 using Shop.Api.Contracts.Product;
@@ -30,6 +32,7 @@ public class ProductController(ProductService productService) : BaseController
     }
 
     [HttpPost(ProductUriConstants.Create)]
+    [Authorize(Policy = PolicyNames.CanManageProducts)]
     public async Task<ApiResult<ProductResponse>> Create(CreateProductRequest request,
         CancellationToken cancellationToken)
     {
@@ -39,6 +42,7 @@ public class ProductController(ProductService productService) : BaseController
     }
 
     [HttpPut(ProductUriConstants.Update)]
+    [Authorize(Policy = PolicyNames.CanManageProducts)]
     public async Task<ApiResult<ProductResponse>> Update(long id, UpdateProductRequest request,
         CancellationToken cancellationToken)
     {
@@ -47,6 +51,7 @@ public class ProductController(ProductService productService) : BaseController
     }
 
     [HttpDelete(ProductUriConstants.Delete)]
+    [Authorize(Policy = PolicyNames.CanManageProducts)]
     public async Task<ApiResult> Delete(long id, CancellationToken cancellationToken)
     {
         await productService.DeleteAsync(id, cancellationToken);

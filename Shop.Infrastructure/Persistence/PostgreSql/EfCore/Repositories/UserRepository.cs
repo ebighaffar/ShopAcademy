@@ -8,7 +8,47 @@ public class UserRepository(ShopDbContext context) : RepositoryBase<User>(contex
 {
     public Task<User?> GetByIdWithBasketAsync(long id, CancellationToken cancellationToken = default)
         => Context.Users
-            .Include(u => u.Basket)
-            .ThenInclude(b => b!.Items)
-            .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
+            .Include(user => user.Basket)
+            .ThenInclude(basket => basket!.Items)
+            .FirstOrDefaultAsync(user => user.Id == id, cancellationToken);
+
+    public Task<User?> GetByUserNameAsync(string userName, CancellationToken cancellationToken = default)
+    {
+        var normalized = userName.Trim().ToLowerInvariant();
+        return Context.Users.FirstOrDefaultAsync(
+            user => user.UserName == normalized, cancellationToken);
+    }
+
+    public Task<User?> GetByIdWithRolesAsync(long id,
+        CancellationToken cancellationToken = default)
+        => Context.Users
+            .Include(user => user.Roles)
+            .ThenInclude(userRole => userRole.Role)
+            .FirstOrDefaultAsync(user => user.Id == id, cancellationToken);
+
+    public Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
+    {
+        var normalized = email.Trim().ToLowerInvariant();
+        return Context.Users.FirstOrDefaultAsync(
+            user => user.Email == normalized, cancellationToken);
+    }
+
+    public Task<User?> GetByIdWithPermissionsAsync(long id,
+        CancellationToken cancellationToken = default)
+        => Context.Users
+            .Include(user => user.Permissions)
+            .ThenInclude(userPermission => userPermission.Permission)
+            .FirstOrDefaultAsync(user => user.Id == id, cancellationToken);
+
+    public Task<User?> GetByLoginWithRolesAsync(string login,
+        CancellationToken cancellationToken = default)
+    {
+        var normalized = login.Trim().ToLowerInvariant();
+        return Context.Users
+            .Include(user => user.Roles)
+            .ThenInclude(userRole => userRole.Role)
+            .FirstOrDefaultAsync(
+                user => user.UserName == normalized || user.Email == normalized,
+                cancellationToken);
+    }
 }

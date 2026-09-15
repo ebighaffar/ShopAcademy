@@ -4,6 +4,7 @@
         <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>Shop.Api-Development</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
@@ -12,6 +13,7 @@
         <PackageReference Include="Asp.Versioning.OpenApi" Version="10.2.1" />
         <PackageReference Include="FluentValidation" Version="12.1.1" />
         <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.11" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.10" />
         <PackageReference Include="Microsoft.AspNetCore.OData" Version="9.5.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.10">

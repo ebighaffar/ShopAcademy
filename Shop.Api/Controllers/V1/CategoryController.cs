@@ -1,5 +1,7 @@
 using Asp.Versioning;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Shop.Api.Authentication;
 using Shop.Api.Constants;
 using Shop.Api.Contracts;
 using Shop.Api.Contracts.Category;
@@ -26,6 +28,7 @@ public class CategoryController(CategoryService categoryService) : BaseControlle
     }
 
     [HttpPost(CategoryUriConstants.Create)]
+    [Authorize(Policy = PolicyNames.CanManageCategories)]
     public async Task<ApiResult<CategoryResponse>> Create(CreateCategoryRequest request,
         CancellationToken cancellationToken)
     {
@@ -35,6 +38,7 @@ public class CategoryController(CategoryService categoryService) : BaseControlle
     }
 
     [HttpPut(CategoryUriConstants.Update)]
+    [Authorize(Policy = PolicyNames.CanManageCategories)]
     public async Task<ApiResult<CategoryResponse>> Update(long id, UpdateCategoryRequest request,
         CancellationToken cancellationToken)
     {
@@ -43,6 +47,7 @@ public class CategoryController(CategoryService categoryService) : BaseControlle
     }
 
     [HttpDelete(CategoryUriConstants.Delete)]
+    [Authorize(Policy = PolicyNames.CanManageCategories)]
     public async Task<ApiResult> Delete(long id, CancellationToken cancellationToken)
     {
         await categoryService.DeleteAsync(id, cancellationToken);

@@ -17,7 +17,7 @@ namespace Shop.Infrastructure.Persistence.PostgreSql.EfCore.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.9")
+                .HasAnnotation("ProductVersion", "10.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -146,6 +146,34 @@ namespace Shop.Infrastructure.Persistence.PostgreSql.EfCore.Migrations
                     b.ToTable("OrderItems");
                 });
 
+            modelBuilder.Entity("Shop.Domain.Entities.Permission", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<bool>("IsSystem")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Permissions");
+                });
+
             modelBuilder.Entity("Shop.Domain.Entities.Product", b =>
                 {
                     b.Property<long>("Id")
@@ -186,6 +214,90 @@ namespace Shop.Infrastructure.Persistence.PostgreSql.EfCore.Migrations
                     b.ToTable("Products");
                 });
 
+            modelBuilder.Entity("Shop.Domain.Entities.RefreshToken", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Family")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<long?>("ReplacedByTokenId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset?>("RevokedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReplacedByTokenId");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.HasIndex("UserId", "Family");
+
+                    b.ToTable("RefreshTokens");
+                });
+
+            modelBuilder.Entity("Shop.Domain.Entities.Role", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<bool>("IsSystem")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Roles");
+                });
+
+            modelBuilder.Entity("Shop.Domain.Entities.RolePermission", b =>
+                {
+                    b.Property<long>("RoleId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("PermissionId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("RoleId", "PermissionId");
+
+                    b.HasIndex("PermissionId");
+
+                    b.ToTable("RolePermissions");
+                });
+
             modelBuilder.Entity("Shop.Domain.Entities.User", b =>
                 {
                     b.Property<long>("Id")
@@ -197,10 +309,18 @@ namespace Shop.Infrastructure.Persistence.PostgreSql.EfCore.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -208,7 +328,9 @@ namespace Shop.Infrastructure.Persistence.PostgreSql.EfCore.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<string>("PasswordHash")
-                        .HasColumnType("text");
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
@@ -216,12 +338,49 @@ namespace Shop.Infrastructure.Persistence.PostgreSql.EfCore.Migrations
                         .HasColumnType("character varying(20)");
 
                     b.Property<string>("UserName")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("UserName")
+                        .IsUnique();
+
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("Shop.Domain.Entities.UserPermission", b =>
+                {
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("PermissionId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("UserId", "PermissionId");
+
+                    b.HasIndex("PermissionId");
+
+                    b.ToTable("UserPermissions");
+                });
+
+            modelBuilder.Entity("Shop.Domain.Entities.UserRole", b =>
+                {
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("RoleId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("UserRoles");
                 });
 
             modelBuilder.Entity("Shop.Domain.Entities.Basket", b =>
@@ -331,6 +490,43 @@ namespace Shop.Infrastructure.Persistence.PostgreSql.EfCore.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Shop.Domain.Entities.RefreshToken", b =>
+                {
+                    b.HasOne("Shop.Domain.Entities.RefreshToken", "ReplacedByToken")
+                        .WithMany()
+                        .HasForeignKey("ReplacedByTokenId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Shop.Domain.Entities.User", "User")
+                        .WithMany("RefreshTokens")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ReplacedByToken");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Shop.Domain.Entities.RolePermission", b =>
+                {
+                    b.HasOne("Shop.Domain.Entities.Permission", "Permission")
+                        .WithMany()
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Shop.Domain.Entities.Role", "Role")
+                        .WithMany("Permissions")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Permission");
+
+                    b.Navigation("Role");
+                });
+
             modelBuilder.Entity("Shop.Domain.Entities.User", b =>
                 {
                     b.OwnsOne("Shop.Domain.ValueObjects.AddressValueObject", "Address", b1 =>
@@ -361,6 +557,44 @@ namespace Shop.Infrastructure.Persistence.PostgreSql.EfCore.Migrations
                     b.Navigation("Address");
                 });
 
+            modelBuilder.Entity("Shop.Domain.Entities.UserPermission", b =>
+                {
+                    b.HasOne("Shop.Domain.Entities.Permission", "Permission")
+                        .WithMany()
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Shop.Domain.Entities.User", "User")
+                        .WithMany("Permissions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Permission");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Shop.Domain.Entities.UserRole", b =>
+                {
+                    b.HasOne("Shop.Domain.Entities.Role", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Shop.Domain.Entities.User", "User")
+                        .WithMany("Roles")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Role");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Shop.Domain.Entities.Basket", b =>
                 {
                     b.Navigation("Items");
@@ -371,9 +605,20 @@ namespace Shop.Infrastructure.Persistence.PostgreSql.EfCore.Migrations
                     b.Navigation("Items");
                 });
 
+            modelBuilder.Entity("Shop.Domain.Entities.Role", b =>
+                {
+                    b.Navigation("Permissions");
+                });
+
             modelBuilder.Entity("Shop.Domain.Entities.User", b =>
                 {
                     b.Navigation("Basket");
+
+                    b.Navigation("Permissions");
+
+                    b.Navigation("RefreshTokens");
+
+                    b.Navigation("Roles");
                 });
 #pragma warning restore 612, 618
         }

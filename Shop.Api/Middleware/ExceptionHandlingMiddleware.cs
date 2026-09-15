@@ -27,7 +27,8 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
     private static HttpStatusCode ResolveStatusCode(Exception exception) => exception switch
     {
         EntityNotFoundException => HttpStatusCode.NotFound,
-        DuplicateUserNameException => HttpStatusCode.Conflict,
+        DuplicateUserNameException or DuplicateEmailException => HttpStatusCode.Conflict,
+        AuthenticationFailedException or InvalidRefreshTokenException => HttpStatusCode.Unauthorized,
         InvalidPriceAmountException
             or InvalidAddressException
             or CurrencyMismatchException

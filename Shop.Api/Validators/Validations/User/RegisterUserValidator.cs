@@ -10,11 +10,13 @@ public class RegisterUserValidator : AbstractValidator<RegisterUserRequest>
     {
         RuleFor(request => request.FirstName)
             .NotEmpty()
-            .WithMessage(UserValidationMessages.FirstNameRequiredMessage);
+            .WithMessage(UserValidationMessages.FirstNameRequiredMessage)
+            .MaximumLength(100);
 
         RuleFor(request => request.LastName)
             .NotEmpty()
-            .WithMessage(UserValidationMessages.LastNameRequiredMessage);
+            .WithMessage(UserValidationMessages.LastNameRequiredMessage)
+            .MaximumLength(100);
 
         RuleFor(request => request.PhoneNumber)
             .NotEmpty()
@@ -24,7 +26,13 @@ public class RegisterUserValidator : AbstractValidator<RegisterUserRequest>
 
         RuleFor(request => request.UserName)
             .NotEmpty()
-            .WithMessage(UserValidationMessages.UserNameRequiredMessage);
+            .WithMessage(UserValidationMessages.UserNameRequiredMessage)
+            .MaximumLength(100);
+
+        RuleFor(request => request.Email)
+            .NotEmpty()
+            .EmailAddress()
+            .MaximumLength(200);
 
         RuleFor(request => request.Password)
             .NotEmpty()

@@ -9,38 +9,42 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 {
     public void Configure(EntityTypeBuilder<User> builder)
     {
-        builder.HasKey(u => u.Id);
+        builder.HasKey(user => user.Id);
 
-        builder.Property(u => u.UserName)
-            .HasMaxLength(100)
-            .IsRequired(false);
-
-        builder.Property(u => u.PasswordHash)
-            .IsRequired(false);
-
-        builder.Property(u => u.FirstName)
+        builder.Property(user => user.UserName)
             .HasMaxLength(100)
             .IsRequired();
+        builder.HasIndex(user => user.UserName).IsUnique();
 
-        builder.Property(u => u.LastName)
-            .HasMaxLength(100)
+        builder.Property(user => user.Email)
+            .HasMaxLength(200)
             .IsRequired();
+        builder.HasIndex(user => user.Email).IsUnique();
 
-        builder.Property(u => u.PhoneNumber)
-            .HasMaxLength(20)
+        builder.Property(user => user.PasswordHash)
+            .HasMaxLength(500)
             .IsRequired();
+        builder.Property(user => user.FirstName).HasMaxLength(100).IsRequired();
+        builder.Property(user => user.LastName).HasMaxLength(100).IsRequired();
+        builder.Property(user => user.PhoneNumber).HasMaxLength(20).IsRequired();
 
-        builder.OwnsOne(u => u.Address, address =>
+        builder.OwnsOne(user => user.Address, address =>
         {
-            address.Property(a => a.RawAddress)
+            address.Property(value => value.RawAddress)
                 .HasColumnName("AddressRawAddress")
                 .HasMaxLength(AddressConstants.RawAddressMaxLength)
                 .IsRequired();
-
-            address.Property(a => a.PostalCode)
+            address.Property(value => value.PostalCode)
                 .HasColumnName("AddressPostalCode")
                 .HasMaxLength(AddressConstants.PostalCodeMaxLength)
                 .IsRequired();
         });
+
+        builder.Navigation(user => user.Roles)
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.Navigation(user => user.Permissions)
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.Navigation(user => user.RefreshTokens)
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

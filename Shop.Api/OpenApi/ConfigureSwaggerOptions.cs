@@ -11,6 +11,19 @@ internal sealed class ConfigureSwaggerOptions(
 {
     public void Configure(SwaggerGenOptions options)
     {
+        options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+        {
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            Description = "Paste the access token returned by login or register."
+        });
+
+        options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+        {
+            [new OpenApiSecuritySchemeReference("Bearer", document)] = []
+        });
+
         foreach (var description in descriptionProvider.ApiVersionDescriptions)
         {
             options.SwaggerDoc(description.GroupName, new OpenApiInfo
