@@ -6,12 +6,6 @@ namespace Shop.Infrastructure.Persistence.PostgreSql.EfCore.Repositories;
 
 public class UserRepository(ShopDbContext context) : RepositoryBase<User>(context), IUserRepository
 {
-    public Task<User?> GetByIdWithBasketAsync(long id, CancellationToken cancellationToken = default)
-        => Context.Users
-            .Include(user => user.Basket)
-            .ThenInclude(basket => basket!.Items)
-            .FirstOrDefaultAsync(user => user.Id == id, cancellationToken);
-
     public Task<User?> GetByUserNameAsync(string userName, CancellationToken cancellationToken = default)
     {
         var normalized = userName.Trim().ToLowerInvariant();
@@ -50,14 +44,5 @@ public class UserRepository(ShopDbContext context) : RepositoryBase<User>(contex
             .FirstOrDefaultAsync(
                 user => user.UserName == normalized || user.Email == normalized,
                 cancellationToken);
-    }
-
-    public async Task<User?> GetByIdIncludeBasketAsync(long userId, CancellationToken cancellationToken)
-    {
-        var user = await Context.Users
-            .Include(u => u.Basket)
-            .ThenInclude(ub => ub!.Items)
-            .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
-        return user;
     }
 }

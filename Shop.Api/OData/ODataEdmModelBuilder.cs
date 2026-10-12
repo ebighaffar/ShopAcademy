@@ -18,7 +18,7 @@ public static class ODataEdmModelBuilder
         product.Property(item => item.Description);
         product.Property(item => item.IsActive);
         product.ComplexProperty(item => item.Price);
-        product.Property(item => item.Count);
+        product.Property(item => item.StockQuantity);
         product.Property(item => item.CategoryId);
         product.Property(item => item.CreatedAt);
         product.HasOptional(item => item.Category);

@@ -93,6 +93,9 @@ namespace Shop.Infrastructure.Persistence.PostgreSql.EfCore.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Name")
+                        .IsUnique();
+
                     b.ToTable("Categories");
                 });
 
@@ -134,6 +137,11 @@ namespace Shop.Infrastructure.Persistence.PostgreSql.EfCore.Migrations
                     b.Property<long>("ProductId")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("ProductName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
 
@@ -144,6 +152,42 @@ namespace Shop.Infrastructure.Persistence.PostgreSql.EfCore.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("OrderItems");
+                });
+
+            modelBuilder.Entity("Shop.Domain.Entities.Payment", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<byte>("Method")
+                        .HasColumnType("smallint");
+
+                    b.Property<long>("OrderId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset?>("PaidAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ProviderReference")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<byte>("Status")
+                        .HasColumnType("smallint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId")
+                        .IsUnique()
+                        .HasFilter("\"Status\" = 2");
+
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("Shop.Domain.Entities.Permission", b =>
@@ -185,9 +229,6 @@ namespace Shop.Infrastructure.Persistence.PostgreSql.EfCore.Migrations
                     b.Property<long>("CategoryId")
                         .HasColumnType("bigint");
 
-                    b.Property<int>("Count")
-                        .HasColumnType("integer");
-
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -206,6 +247,15 @@ namespace Shop.Infrastructure.Persistence.PostgreSql.EfCore.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<int>("StockQuantity")
+                        .HasColumnType("integer");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
 
                     b.HasKey("Id");
 
@@ -386,7 +436,7 @@ namespace Shop.Infrastructure.Persistence.PostgreSql.EfCore.Migrations
             modelBuilder.Entity("Shop.Domain.Entities.Basket", b =>
                 {
                     b.HasOne("Shop.Domain.Entities.User", null)
-                        .WithOne("Basket")
+                        .WithOne()
                         .HasForeignKey("Shop.Domain.Entities.Basket", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -413,6 +463,34 @@ namespace Shop.Infrastructure.Persistence.PostgreSql.EfCore.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.OwnsOne("Shop.Domain.ValueObjects.AddressValueObject", "ShippingAddress", b1 =>
+                        {
+                            b1.Property<long>("OrderId")
+                                .HasColumnType("bigint");
+
+                            b1.Property<string>("PostalCode")
+                                .IsRequired()
+                                .HasMaxLength(20)
+                                .HasColumnType("character varying(20)")
+                                .HasColumnName("ShippingPostalCode");
+
+                            b1.Property<string>("RawAddress")
+                                .IsRequired()
+                                .HasMaxLength(500)
+                                .HasColumnType("character varying(500)")
+                                .HasColumnName("ShippingRawAddress");
+
+                            b1.HasKey("OrderId");
+
+                            b1.ToTable("Orders");
+
+                            b1.WithOwner()
+                                .HasForeignKey("OrderId");
+                        });
+
+                    b.Navigation("ShippingAddress")
                         .IsRequired();
                 });
 
@@ -452,6 +530,39 @@ namespace Shop.Infrastructure.Persistence.PostgreSql.EfCore.Migrations
                         });
 
                     b.Navigation("UnitPrice")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Shop.Domain.Entities.Payment", b =>
+                {
+                    b.HasOne("Shop.Domain.Entities.Order", null)
+                        .WithMany()
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.OwnsOne("Shop.Domain.ValueObjects.Money", "Amount", b1 =>
+                        {
+                            b1.Property<long>("PaymentId")
+                                .HasColumnType("bigint");
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("Amount");
+
+                            b1.Property<byte>("Currency")
+                                .HasColumnType("smallint")
+                                .HasColumnName("AmountCurrency");
+
+                            b1.HasKey("PaymentId");
+
+                            b1.ToTable("Payments");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PaymentId");
+                        });
+
+                    b.Navigation("Amount")
                         .IsRequired();
                 });
 
@@ -612,8 +723,6 @@ namespace Shop.Infrastructure.Persistence.PostgreSql.EfCore.Migrations
 
             modelBuilder.Entity("Shop.Domain.Entities.User", b =>
                 {
-                    b.Navigation("Basket");
-
                     b.Navigation("Permissions");
 
                     b.Navigation("RefreshTokens");

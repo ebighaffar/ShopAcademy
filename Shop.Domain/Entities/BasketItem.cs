@@ -13,22 +13,20 @@ public class BasketItem
     {
     }
 
-    internal BasketItem(long id, long basketId, long productId, int quantity)
+    internal BasketItem(long productId, int quantity)
     {
         if (quantity <= 0)
             throw new InvalidQuantityException();
 
-        Id = id;
-        BasketId = basketId;
         ProductId = productId;
         Quantity = quantity;
     }
 
-    internal void IncreaseQuantity(int amount)
+    internal void ChangeQuantity(int quantity)
     {
-        if (amount <= 0)
+        if (quantity <= 0)
             throw new InvalidQuantityException();
 
-        Quantity += amount;
+        Quantity = quantity;
     }
 }

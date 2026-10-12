@@ -1,4 +1,5 @@
-﻿using Shop.Domain.Exceptions;
+using Shop.Domain.Constants;
+using Shop.Domain.Exceptions;
 using Shop.Domain.ValueObjects;
 
 namespace Shop.Domain.Entities;
@@ -11,32 +12,44 @@ public class Product
     public bool IsActive { get; private set; }
     public bool IsDeleted { get; private set; }
     public Money Price { get; private set; } = null!;
-    public int Count { get; private set; }
+    public int StockQuantity { get; private set; }
     public long CategoryId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
 
-    public Category? Category { get; private init; }
+    // Optimistic concurrency token (PostgreSQL xmin): two checkouts racing for the last
+    // item cannot both succeed, the second SaveChanges fails.
+    public uint Version { get; private set; }
 
+    public Category? Category { get; private init; }
 
     private Product()
     {
     }
 
-    public Product(string name, string? description, Money price, int count, long categoryId)
+    public Product(string name, string? description, Money price, int stockQuantity, long categoryId)
     {
-        Name = name;
+        EnsureValidName(name);
+        EnsureShopCurrency(price);
+        if (stockQuantity < 0)
+            throw new DomainValidationException("Stock quantity cannot be negative");
+
+        Name = name.Trim();
         Description = description;
         IsActive = true;
         IsDeleted = false;
         Price = price;
-        Count = count;
+        StockQuantity = stockQuantity;
         CategoryId = categoryId;
         CreatedAt = DateTimeOffset.UtcNow;
     }
 
+    public bool IsAvailableForSale => IsActive && !IsDeleted;
+
     public void Update(string name, string? description, long categoryId)
     {
-        Name = name;
+        EnsureValidName(name);
+
+        Name = name.Trim();
         Description = description;
         CategoryId = categoryId;
     }
@@ -46,11 +59,48 @@ public class Product
         IsActive = !IsActive;
     }
 
-    public void IncreasePrice(decimal amount)
+    public void ChangePrice(Money newPrice)
     {
-        if (amount <= 0)
-            throw new InvalidPriceAmountException();
+        EnsureShopCurrency(newPrice);
+        Price = newPrice;
+    }
 
-        Price = new Money(Price.Amount + amount, Price.Currency);
+    public void DecreaseStock(int quantity)
+    {
+        if (quantity <= 0)
+            throw new InvalidQuantityException();
+        if (quantity > StockQuantity)
+            throw new InsufficientStockException(Id, quantity, StockQuantity);
+
+        StockQuantity -= quantity;
+    }
+
+    public void IncreaseStock(int quantity)
+    {
+        if (quantity <= 0)
+            throw new InvalidQuantityException();
+
+        StockQuantity += quantity;
+    }
+
+    // Soft delete: order history keeps referencing the row, but it is hidden from the
+    // catalog (query filter) and can no longer be sold.
+    public void Delete()
+    {
+        IsDeleted = true;
+        IsActive = false;
+    }
+
+    private static void EnsureValidName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name) || name.Trim().Length > ProductConstants.NameMaxLength)
+            throw new DomainValidationException(
+                $"Product name is required and cannot exceed {ProductConstants.NameMaxLength} characters");
+    }
+
+    private static void EnsureShopCurrency(Money price)
+    {
+        if (price.Currency != ShopConstants.Currency)
+            throw new CurrencyMismatchException();
     }
 }

@@ -13,6 +13,7 @@ public class CategoryConfiguration : IEntityTypeConfiguration<Category>
         builder.Property(c => c.Name)
             .HasMaxLength(CategoryConstants.NameMaxLength)
             .IsRequired();
+        builder.HasIndex(c => c.Name).IsUnique();
 
         builder.Property(c => c.Description)
             .HasMaxLength(CategoryConstants.DescriptionMaxLength)

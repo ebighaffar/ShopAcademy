@@ -18,7 +18,6 @@ public class User
     public bool IsActive { get; private set; }
     public AddressValueObject? Address { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
-    public Basket? Basket { get; private set; }
     public IReadOnlyCollection<UserRole> Roles => _roles;
     public IReadOnlyCollection<UserPermission> Permissions => _permissions;
     public IReadOnlyCollection<RefreshToken> RefreshTokens => _refreshTokens;
@@ -68,11 +67,5 @@ public class User
     public void SetAddress(AddressValueObject address)
     {
         Address = address;
-    }
-
-    public Basket GetOrCreateBasket(long basketId)
-    {
-        Basket ??= new Basket(basketId, Id);
-        return Basket;
     }
 }

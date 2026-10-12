@@ -38,8 +38,7 @@ public class CategoryService(
 
     public async Task<CategoryDto> CreateAsync(CreateCategoryDto dto, CancellationToken cancellationToken = default)
     {
-        var category = new Category(0, dto.Name);
-        category.Update(dto.Name, dto.Description);
+        var category = new Category(dto.Name, dto.Description);
 
         await categoryRepository.AddAsync(category, cancellationToken);
         await categoryRepository.SaveChangesAsync(cancellationToken);

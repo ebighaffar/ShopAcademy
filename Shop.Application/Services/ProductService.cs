@@ -59,6 +59,7 @@ public class ProductService(
         var product = await productRepository.GetByIdAsync(id, cancellationToken)
                       ?? throw new EntityNotFoundException(nameof(Product), id);
 
+        product.Delete();
         productRepository.Update(product);
         await productRepository.SaveChangesAsync(cancellationToken);
 
@@ -72,7 +73,7 @@ public class ProductService(
         product.IsActive,
         product.Price.Amount,
         product.Price.Currency,
-        product.Count,
+        product.StockQuantity,
         product.CategoryId,
         product.CreatedAt);
 }

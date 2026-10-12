@@ -1,4 +1,5 @@
 using System.Net;
+using Microsoft.EntityFrameworkCore;
 using Shop.Application.Repositories;
 using Shop.Domain.Entities;
 using Shop.Domain.Exceptions;
@@ -26,13 +27,21 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
 
     private static HttpStatusCode ResolveStatusCode(Exception exception) => exception switch
     {
-        EntityNotFoundException => HttpStatusCode.NotFound,
-        DuplicateUserNameException or DuplicateEmailException => HttpStatusCode.Conflict,
+        EntityNotFoundException or BasketItemNotFoundException => HttpStatusCode.NotFound,
+        DuplicateUserNameException
+            or DuplicateEmailException
+            or InsufficientStockException
+            or DbUpdateConcurrencyException => HttpStatusCode.Conflict,
         AuthenticationFailedException or InvalidRefreshTokenException => HttpStatusCode.Unauthorized,
         InvalidPriceAmountException
             or InvalidAddressException
             or CurrencyMismatchException
-            or InvalidQuantityException => HttpStatusCode.BadRequest,
+            or InvalidQuantityException
+            or DomainValidationException
+            or ProductNotAvailableException
+            or EmptyBasketException
+            or InvalidOrderStateException
+            or InvalidPaymentException => HttpStatusCode.BadRequest,
         _ => HttpStatusCode.InternalServerError
     };
 
@@ -41,7 +50,9 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
     private static string ResolveDetail(Exception exception, HttpStatusCode statusCode) =>
         statusCode == HttpStatusCode.InternalServerError
             ? "An unexpected error occurred."
-            : exception.Message;
+            : exception is DbUpdateConcurrencyException
+                ? "The resource was modified by another request. Please retry."
+                : exception.Message;
 
     private async Task LogExceptionAsync(
         HttpContext context,

@@ -8,6 +8,10 @@ public class OrderItem
     public long Id { get; private set; }
     public long OrderId { get; private set; }
     public long ProductId { get; private set; }
+
+    // Name and price are snapshots taken at placement, so history survives later
+    // product renames, price changes and deletion.
+    public string ProductName { get; private set; } = null!;
     public Money UnitPrice { get; private set; } = null!;
     public int Quantity { get; private set; }
 
@@ -17,14 +21,13 @@ public class OrderItem
     {
     }
 
-    internal OrderItem(long id, long orderId, long productId, Money unitPrice, int quantity)
+    internal OrderItem(long productId, string productName, Money unitPrice, int quantity)
     {
         if (quantity <= 0)
             throw new InvalidQuantityException();
 
-        Id = id;
-        OrderId = orderId;
         ProductId = productId;
+        ProductName = productName;
         UnitPrice = unitPrice;
         Quantity = quantity;
     }

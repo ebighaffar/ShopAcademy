@@ -31,6 +31,8 @@ public static class DependencyInjection
         services.AddScoped<IPermissionRepository, PermissionRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
+        services.AddScoped<IBasketRepository, BasketRepository>();
+        services.AddScoped<IPaymentRepository, PaymentRepository>();
         services.AddScoped<IUserPermissionService, UserPermissionService>();
 
         // Dapper is wired up alongside EF Core: same "Default" connection string, same IProductRepository

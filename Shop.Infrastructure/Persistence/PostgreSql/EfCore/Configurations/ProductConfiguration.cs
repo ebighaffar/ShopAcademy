@@ -22,6 +22,10 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(p => p.IsActive)
             .IsRequired();
 
+        // Maps to PostgreSQL's xmin system column: optimistic concurrency without an extra column.
+        builder.Property(p => p.Version)
+            .IsRowVersion();
+
         builder.Property(p => p.IsDeleted)
             .IsRequired();
 

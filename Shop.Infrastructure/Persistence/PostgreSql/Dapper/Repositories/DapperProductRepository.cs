@@ -24,7 +24,7 @@ public class DapperProductRepository(IDbConnectionFactory connectionFactory) : I
     public async Task<Product?> GetByIdAsync(long id, CancellationToken cancellationToken = default)
     {
         const string sql = """
-                           SELECT Id, Name, Description, IsActive, IsDeleted, Price, PriceCurrency, Count, CategoryId, CreatedAt
+                           SELECT Id, Name, Description, IsActive, IsDeleted, Price, PriceCurrency, StockQuantity, CategoryId, CreatedAt
                            FROM Products
                            WHERE Id = @Id AND IsDeleted = 0
                            """;
@@ -39,7 +39,7 @@ public class DapperProductRepository(IDbConnectionFactory connectionFactory) : I
     public async Task<IReadOnlyList<Product>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         const string sql = """
-                           SELECT Id, Name, Description, IsActive, IsDeleted, Price, PriceCurrency, Count, CategoryId, CreatedAt
+                           SELECT Id, Name, Description, IsActive, IsDeleted, Price, PriceCurrency, StockQuantity, CategoryId, CreatedAt
                            FROM Products
                            WHERE IsDeleted = 0
                            """;
@@ -55,6 +55,23 @@ public class DapperProductRepository(IDbConnectionFactory connectionFactory) : I
         CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
+    }
+
+    public async Task<IReadOnlyList<Product>> GetByIdsAsync(IEnumerable<long> ids,
+        CancellationToken cancellationToken = default)
+    {
+        const string sql = """
+                           SELECT Id, Name, Description, IsActive, IsDeleted, Price, PriceCurrency, StockQuantity, CategoryId, CreatedAt
+                           FROM Products
+                           WHERE Id IN @Ids
+                           """;
+
+        using var connection = connectionFactory.CreateConnection();
+        var command = new CommandDefinition(sql, new { Ids = ids.Distinct().ToArray() },
+            cancellationToken: cancellationToken);
+        var rows = await connection.QueryAsync(command);
+
+        return rows.Select(MapToProduct).ToList();
     }
 
     public IQueryable<Product> GetAllAsQueryable()
@@ -81,9 +98,9 @@ public class DapperProductRepository(IDbConnectionFactory connectionFactory) : I
         using var connection = connectionFactory.CreateConnection();
 
         const string insertSql = """
-                                 INSERT INTO Products (Name, Description, IsActive, IsDeleted, Price, PriceCurrency, Count, CategoryId, CreatedAt)
+                                 INSERT INTO Products (Name, Description, IsActive, IsDeleted, Price, PriceCurrency, StockQuantity, CategoryId, CreatedAt)
                                  OUTPUT INSERTED.Id
-                                 VALUES (@Name, @Description, @IsActive, @IsDeleted, @PriceAmount, @PriceCurrency, @Count, @CategoryId, @CreatedAt)
+                                 VALUES (@Name, @Description, @IsActive, @IsDeleted, @PriceAmount, @PriceCurrency, @StockQuantity, @CategoryId, @CreatedAt)
                                  """;
 
         foreach (var product in _pendingInserts)
@@ -98,7 +115,7 @@ public class DapperProductRepository(IDbConnectionFactory connectionFactory) : I
         const string updateSql = """
                                  UPDATE Products
                                  SET Name = @Name, Description = @Description, IsActive = @IsActive, IsDeleted = @IsDeleted,
-                                     Price = @PriceAmount, PriceCurrency = @PriceCurrency, Count = @Count, CategoryId = @CategoryId
+                                     Price = @PriceAmount, PriceCurrency = @PriceCurrency, StockQuantity = @StockQuantity, CategoryId = @CategoryId
                                  WHERE Id = @Id
                                  """;
 
@@ -131,7 +148,7 @@ public class DapperProductRepository(IDbConnectionFactory connectionFactory) : I
         product.IsDeleted,
         PriceAmount = product.Price.Amount,
         PriceCurrency = (byte)product.Price.Currency,
-        product.Count,
+        product.StockQuantity,
         product.CategoryId,
         product.CreatedAt
     };
@@ -145,7 +162,7 @@ public class DapperProductRepository(IDbConnectionFactory connectionFactory) : I
         product.IsDeleted,
         PriceAmount = product.Price.Amount,
         PriceCurrency = (byte)product.Price.Currency,
-        product.Count,
+        product.StockQuantity,
         product.CategoryId
     };
 
@@ -163,7 +180,7 @@ public class DapperProductRepository(IDbConnectionFactory connectionFactory) : I
         SetPrivateProperty(product, nameof(Product.IsDeleted), (bool)row.IsDeleted);
         SetPrivateProperty(product, nameof(Product.Price),
             new Money((decimal)row.Price, (Currency)(byte)row.PriceCurrency));
-        SetPrivateProperty(product, nameof(Product.Count), (int)row.Count);
+        SetPrivateProperty(product, nameof(Product.StockQuantity), (int)row.StockQuantity);
         SetPrivateProperty(product, nameof(Product.CategoryId), (long)row.CategoryId);
         SetPrivateProperty(product, nameof(Product.CreatedAt), (DateTimeOffset)row.CreatedAt);
 

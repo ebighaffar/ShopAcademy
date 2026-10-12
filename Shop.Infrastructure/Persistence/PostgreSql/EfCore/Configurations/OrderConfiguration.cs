@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Shop.Domain.Constants;
 using Shop.Domain.Entities;
 
 namespace Shop.Infrastructure.Persistence.PostgreSql.EfCore.Configurations;
@@ -14,6 +15,18 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             .WithMany()
             .HasForeignKey(o => o.UserId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.OwnsOne(o => o.ShippingAddress, address =>
+        {
+            address.Property(value => value.RawAddress)
+                .HasColumnName("ShippingRawAddress")
+                .HasMaxLength(AddressConstants.RawAddressMaxLength)
+                .IsRequired();
+            address.Property(value => value.PostalCode)
+                .HasColumnName("ShippingPostalCode")
+                .HasMaxLength(AddressConstants.PostalCodeMaxLength)
+                .IsRequired();
+        });
 
         builder.HasMany(o => o.Items)
             .WithOne()
