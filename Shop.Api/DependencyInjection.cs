@@ -37,6 +37,7 @@ public static class DependencyInjection
             {
                 var settings = jwtOptions.Value;
 
+                options.MapInboundClaims = false;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,

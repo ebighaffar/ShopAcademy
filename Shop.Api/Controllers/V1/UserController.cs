@@ -7,6 +7,7 @@ using Shop.Api.Contracts.Auth;
 using Shop.Api.Contracts.User;
 using Shop.Api.Extensions;
 using Shop.Api.Mappers;
+using Shop.Application.DTOs.Basket;
 using Shop.Domain.Constants;
 
 namespace Shop.Api.Controllers.V1;

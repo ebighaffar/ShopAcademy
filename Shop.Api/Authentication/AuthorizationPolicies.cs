@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using Shop.Application.Authentication.Claims;
 using Shop.Domain.Constants;
 
 namespace Shop.Api.Authentication;
@@ -11,7 +13,7 @@ public static class AuthorizationPolicies
             policy => policy.RequireRole(Roles.User));
 
         options.AddPolicy(PolicyNames.ActiveUser,
-            policy => policy.RequireClaim(CustomClaimTypes.AccountStatus, ClaimValues.Active));
+            policy => policy.RequireClaim(CustomClaimTypes.AccountStatus, CustomClaimValues.Active));
 
         options.AddPolicy(PolicyNames.CanReadProducts,
             policy => policy.Requirements.Add(

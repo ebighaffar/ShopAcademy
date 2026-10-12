@@ -10,4 +10,5 @@ public interface IUserRepository : IRepository<User>
     Task<User?> GetByUserNameAsync(string userName, CancellationToken cancellationToken = default);
     Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default);
     Task<User?> GetByLoginWithRolesAsync(string login, CancellationToken cancellationToken = default);
+    public Task<User?> GetByIdIncludeBasketAsync(long userId, CancellationToken cancellationToken);
 }

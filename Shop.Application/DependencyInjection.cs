@@ -15,6 +15,7 @@ public static class DependencyInjection
         services.AddScoped<ProductService>();
         services.AddScoped<CategoryService>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IBasketService, BasketService>();
         services.AddScoped<ExceptionLogService>();
     }
 }

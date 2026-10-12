@@ -14,6 +14,7 @@ namespace Shop.Api.Controllers.V1;
 [ApiVersion(1.0)]
 public class ProductController(ProductService productService) : BaseController
 {
+    [Authorize(Policy = PolicyNames.CustomerAccess)]
     [HttpGet(ProductUriConstants.GetAll)]
     public async Task<ApiResult<List<ProductResponse>>> GetAll([FromQuery] ProductListFilter inputFilter,
         CancellationToken cancellationToken)

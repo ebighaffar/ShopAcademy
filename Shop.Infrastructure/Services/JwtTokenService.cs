@@ -1,16 +1,16 @@
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Shop.Application.Authentication.Claims;
 using Shop.Application.DTOs;
 using Shop.Application.Interfaces;
-using Shop.Domain.Constants;
 using Shop.Domain.Entities;
+using Shop.Infrastructure.Authentication;
 
-namespace Shop.Infrastructure.Authentication;
+namespace Shop.Infrastructure.Services;
 
 public class JwtTokenService(IOptionsSnapshot<JwtSettings> options) : ITokenService
 {
@@ -21,7 +21,7 @@ public class JwtTokenService(IOptionsSnapshot<JwtSettings> options) : ITokenServ
         var expiresAt = now.AddMinutes(settings.AccessTokenMinutes);
         var claims = new List<Claim>
         {
-            new(JwtRegisteredClaimNames.Sub, user.Id.ToString(CultureInfo.InvariantCulture)),
+            new(JwtRegisteredClaimNames.Sub, user.Id.ToString(CultureInfo.InvariantCulture), ClaimValueTypes.Integer32),
             new(JwtRegisteredClaimNames.Iat,
                 EpochTime.GetIntDate(now.UtcDateTime).ToString(CultureInfo.InvariantCulture),
                 ClaimValueTypes.Integer64),
@@ -29,10 +29,11 @@ public class JwtTokenService(IOptionsSnapshot<JwtSettings> options) : ITokenServ
             new(JwtRegisteredClaimNames.Email, user.Email),
             new(JwtRegisteredClaimNames.GivenName, user.FirstName),
             new(JwtRegisteredClaimNames.FamilyName, user.LastName),
-            new(CustomClaimTypes.AccountStatus, user.IsActive ? ClaimValues.Active : ClaimValues.NotActive)
+            new(CustomClaimTypes.AccountStatus, CustomClaimValues.NotActive)
+            // new(CustomClaimTypes.AccountStatus, user.IsActive ? CustomClaimValues.Active : CustomClaimValues.NotActive)
         };
 
-        claims.AddRange(roles.Select(role => new Claim("role", role)));
+        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
         var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(settings.Key));
         var token = new JwtSecurityToken(

@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Shop.Application.Interfaces;
 using Shop.Infrastructure.Persistence.PostgreSql.EfCore;
 
-namespace Shop.Infrastructure.Authorization;
+namespace Shop.Infrastructure.Services;
 
 public class UserPermissionService(ShopDbContext context) : IUserPermissionService
 {

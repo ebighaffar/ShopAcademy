@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Shop.Application.Interfaces;
 using Shop.Application.Repositories;
 using Shop.Infrastructure.Authentication;
-using Shop.Infrastructure.Authorization;
 using Shop.Infrastructure.Caching.Redis;
 using Shop.Infrastructure.Persistence.Mongo;
 using Shop.Infrastructure.Persistence.Mongo.Repositories;
@@ -12,6 +11,7 @@ using Shop.Infrastructure.Persistence.PostgreSql.Dapper;
 using Shop.Infrastructure.Persistence.PostgreSql.Dapper.Repositories;
 using Shop.Infrastructure.Persistence.PostgreSql.EfCore;
 using Shop.Infrastructure.Persistence.PostgreSql.EfCore.Repositories;
+using Shop.Infrastructure.Services;
 
 namespace Shop.Infrastructure;
 
@@ -32,7 +32,6 @@ public static class DependencyInjection
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IUserPermissionService, UserPermissionService>();
-        services.AddScoped<IdentityDataSeeder>();
 
         // Dapper is wired up alongside EF Core: same "Default" connection string, same IProductRepository
         // contract. Registered under its concrete type (not IProductRepository) so it doesn't replace the
@@ -65,6 +64,7 @@ public static class DependencyInjection
         services.AddScoped<ITokenService, JwtTokenService>();
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
+        services.AddScoped<IdentityDataSeeder>();
     }
 
     // MongoDB coexists with EF Core / Dapper. It backs a separate concern — captured

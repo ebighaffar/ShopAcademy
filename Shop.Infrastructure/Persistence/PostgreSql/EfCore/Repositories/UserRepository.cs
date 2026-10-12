@@ -51,4 +51,13 @@ public class UserRepository(ShopDbContext context) : RepositoryBase<User>(contex
                 user => user.UserName == normalized || user.Email == normalized,
                 cancellationToken);
     }
+
+    public async Task<User?> GetByIdIncludeBasketAsync(long userId, CancellationToken cancellationToken)
+    {
+        var user = await Context.Users
+            .Include(u => u.Basket)
+            .ThenInclude(ub => ub!.Items)
+            .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+        return user;
+    }
 }

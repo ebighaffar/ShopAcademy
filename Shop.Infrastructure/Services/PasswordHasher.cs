@@ -1,9 +1,8 @@
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Options;
 using Shop.Application.Interfaces;
 using Shop.Domain.Entities;
 
-namespace Shop.Infrastructure.Authentication;
+namespace Shop.Infrastructure.Services;
 
 public class PasswordHasher : IPasswordHasher
 {

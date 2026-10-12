@@ -7,12 +7,14 @@ using Shop.Api.Contracts;
 using Shop.Api.Contracts.Category;
 using Shop.Api.Mappers;
 using Shop.Application.Services;
+using Shop.Domain.Constants;
 
 namespace Shop.Api.Controllers.V1;
 
 [ApiVersion(1.0)]
 public class CategoryController(CategoryService categoryService) : BaseController
 {
+    [Authorize(Roles = $"{Roles.Admin},{Roles.Manager}")]
     [HttpGet(CategoryUriConstants.GetAll)]
     public async Task<ApiResult<IReadOnlyList<CategoryResponse>>> GetAll(CancellationToken cancellationToken)
     {

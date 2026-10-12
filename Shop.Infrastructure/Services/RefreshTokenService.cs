@@ -3,8 +3,9 @@ using System.Text;
 using Microsoft.Extensions.Options;
 using Shop.Application.DTOs;
 using Shop.Application.Interfaces;
+using Shop.Infrastructure.Authentication;
 
-namespace Shop.Infrastructure.Authentication;
+namespace Shop.Infrastructure.Services;
 
 public class RefreshTokenService(IOptionsSnapshot<JwtSettings> options) : IRefreshTokenService
 {
