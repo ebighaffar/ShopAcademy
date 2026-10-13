@@ -1,5 +1,6 @@
 using System.Net;
 using Microsoft.EntityFrameworkCore;
+using Sentry;
 using Shop.Application.Repositories;
 using Shop.Domain.Entities;
 using Shop.Domain.Exceptions;
@@ -19,6 +20,14 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
         catch (Exception ex)
         {
             var statusCode = ResolveStatusCode(ex);
+
+            // This middleware swallows the exception, so Sentry's own pipeline never sees it.
+            // Only unexpected errors are reported; mapped domain errors (4xx) are expected.
+            if (statusCode == HttpStatusCode.InternalServerError)
+            {
+                SentrySdk.CaptureMessage("this is a test message !");
+                SentrySdk.CaptureException(ex);
+            }
 
             await LogExceptionAsync(context, ex, statusCode, exceptionLogRepository);
             await WriteProblemAsync(context, statusCode, ResolveDetail(ex, statusCode));

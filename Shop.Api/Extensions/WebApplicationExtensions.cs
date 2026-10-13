@@ -12,6 +12,20 @@ public static class WebApplicationExtensions
         await seeder.SeedAsync();
     }
 
+    /// <summary>
+    /// Development-only endpoint that throws, to verify an error reaches the Sentry dashboard.
+    /// </summary>
+    public static void MapSentryTestEndpoint(this WebApplication app)
+    {
+        if (!app.Environment.IsDevelopment())
+            return;
+
+        app.MapGet("/debug/sentry-test", () =>
+        {
+            throw new InvalidOperationException("Sentry test exception");
+        }).AllowAnonymous();
+    }
+
     public static void UseApiDocumentation(this WebApplication app)
     {
         if (!app.Environment.IsDevelopment())

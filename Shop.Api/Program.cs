@@ -6,6 +6,13 @@ using Shop.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Binds the "Sentry" config section; an empty Sentry:Dsn disables reporting.
+builder.WebHost.UseSentry(options =>
+{
+    options.Dsn = builder.Configuration["Sentry:Dsn"];
+    options.Debug = true;
+});
+
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
 builder.Services.AddApi();
@@ -20,5 +27,6 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapSentryTestEndpoint();
 
 app.Run();
