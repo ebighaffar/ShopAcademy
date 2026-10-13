@@ -60,6 +60,7 @@ Clean-architecture layering; dependencies point inward: `Api → Application, In
 - Actions return `ApiResult` / `ApiResult<T>` (envelope: `Data`, `Success`, `Status`, `Error`; implicit conversion from `T`). `ApiResultFilter` wraps any plain `ObjectResult`/`NotFound`/`NoContent` the same way and skips OData requests. `ApiResultMiddleware` exists but is **not** registered in `Program.cs`.
 - Errors: throw domain exceptions (e.g. `EntityNotFoundException`, `DuplicateEmailException`); `ExceptionHandlingMiddleware` maps them to status codes (anything unmapped → 500 with a masked message) and persists each to Mongo. New exception types need an entry in `ResolveStatusCode`.
 - Sentry: `ExceptionHandlingMiddleware` reports only 500s via `SentrySdk.CaptureException` (it swallows exceptions, so Sentry's own pipeline never sees them). DSN is `Sentry:Dsn` in `appsettings.json` (empty = disabled). See `docs/sentry.md`.
+- Logging: Serilog (`UseSerilog` in `Program.cs`, config in the `Serilog` section of `appsettings.json`; console + daily files under `logs/`). See `docs/serilog.md`.
 - Validation: FluentValidators in `Validators/Validations/<Area>` (auto-registered from the Api assembly) run via `ValidationFilter`; message strings are in `Validators/Messages`.
 - DTO ↔ contract conversion uses extension-method mappers in `Mappers/` (`ToDto()`, `ToResponse()`).
 - OData: `ODataProductsController` is commented out ("temporarily disabled"), though `Microsoft.AspNetCore.OData` and `OData/ODataEdmModelBuilder.cs` remain.

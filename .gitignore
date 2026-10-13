@@ -78,3 +78,6 @@ secrets.json
 
 ## Rider .NET user files
 *.DS_Store
+
+# Serilog files
+logs/

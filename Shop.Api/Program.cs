@@ -1,3 +1,4 @@
+using Serilog;
 using Shop.Api;
 using Shop.Api.Extensions;
 using Shop.Api.Middleware;
@@ -13,6 +14,11 @@ builder.WebHost.UseSentry(options =>
     options.Debug = true;
 });
 
+// Sinks and levels come from the "Serilog" section in appsettings.json.
+builder.Host.UseSerilog((context, services, configuration) => configuration
+    .ReadFrom.Configuration(context.Configuration)
+    .ReadFrom.Services(services));
+
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
 builder.Services.AddApi();
@@ -23,6 +29,7 @@ await app.SeedIdentityAsync();
 
 app.UseApiDocumentation();
 app.UseHttpsRedirection();
+app.UseSerilogRequestLogging();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
