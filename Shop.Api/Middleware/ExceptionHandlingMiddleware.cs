@@ -95,11 +95,13 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
         context.Response.ContentType = "application/problem+json";
         context.Response.StatusCode = (int)statusCode;
 
+        // Lets a caller quote the id of a failed request so its logs and trace can be found.
         var problem = new
         {
             status = (int)statusCode,
             title = statusCode.ToString(),
-            detail
+            detail,
+            traceId = Activity.Current?.TraceId.ToString() ?? context.TraceIdentifier
         };
 
         return context.Response.WriteAsJsonAsync(problem);

@@ -27,8 +27,8 @@ The API uses [Serilog](https://serilog.net) for structured logging. Logs go to t
     }
   },
   "WriteTo": [
-    { "Name": "Console" },
-    { "Name": "File", "Args": { "path": "logs/shop-.log", "rollingInterval": "Day", "retainedFileCountLimit": 14 } },
+    { "Name": "Console", "Args": { "outputTemplate": "[{Timestamp:HH:mm:ss} {Level:u3}] [{TraceId}] {Message:lj} <{SourceContext}>{NewLine}{Exception}" } },
+    { "Name": "File", "Args": { "outputTemplate": "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{TraceId}] [{SpanId}] {Message:lj} <{SourceContext}>{NewLine}{Exception}", "path": "logs/shop-.log", "rollingInterval": "Day", "retainedFileCountLimit": 14 } },
     { "Name": "Seq", "Args": { "serverUrl": "http://localhost:5341" } }
   ],
   "Enrich": [ "FromLogContext" ]
@@ -38,6 +38,7 @@ The API uses [Serilog](https://serilog.net) for structured logging. Logs go to t
 - **`MinimumLevel.Default`**: lowest level logged (`Verbose`, `Debug`, `Information`, `Warning`, `Error`, `Fatal`).
 - **`Override`**: per-namespace levels. Framework namespaces are set to `Warning` to cut noise. Add `"Microsoft.EntityFrameworkCore.Database.Command": "Information"` to see SQL.
 - **File sink**: a new file each day (`shop-20261013.log`); files older than 14 days are deleted. The path is relative to the working directory, so `dotnet run --project Shop.Api` writes to `logs/` where the app was started.
+- **`outputTemplate`** (console and file): the default template has no trace ID, so these set their own that includes `{TraceId}` (and `{SpanId}` in the file). See [Finding logs by trace ID](#finding-logs-by-trace-id). Keep `{TraceId}` if you change the template.
 
 To change levels per environment, override in `appsettings.Development.json`, e.g. `"Serilog": { "MinimumLevel": { "Default": "Debug" } }`.
 
@@ -87,6 +88,32 @@ logger.LogError(ex, "Failed to persist exception log for {ExceptionType}", ex.Ge
 ```
 
 The `{OrderId}` and `{UserId}` values are stored as properties, so they can be searched later instead of being flattened into text.
+
+## Finding logs by trace ID
+
+Every request runs inside a trace (started by ASP.NET Core instrumentation, see [opentelemetry.md](opentelemetry.md)). Serilog stamps each log event with the `TraceId` and `SpanId` of the active trace when the event is created, so no enricher or code change is needed. A log written outside a request (for example during startup) has no trace ID.
+
+The ID is a 32-character hex string, such as `46ca586e91c1531e8969d908580b5a7e`. It reaches every place logs go:
+
+| Where | How to search |
+|---|---|
+| Seq | `@TraceId = '<id>'` |
+| Grafana Loki | `{service_name="ShopAPI"} \| trace_id="<id>"` |
+| Grafana Tempo | Explore → Tempo → paste the ID to see the spans |
+| Log file | `grep <id> logs/shop-*.log` |
+| Console | the `[<id>]` column |
+
+**Getting the ID for a failed request.** `ExceptionHandlingMiddleware` adds a `traceId` field to the `application/problem+json` body, so a caller can report it:
+
+```json
+{ "status": 500, "title": "InternalServerError", "detail": "An unexpected error occurred.", "traceId": "46ca586e91c1531e8969d908580b5a7e" }
+```
+
+Notes:
+
+- The ID exists even when the trace is **not sampled** (`Tracing:SamplingRatio` below 1). The logs are still tagged and searchable, but Tempo will have no trace for it.
+- MongoDB exception logs do not store the trace ID. Find the matching entry by time and request path, or look up the request in Seq with the ID.
+- If OpenTelemetry is disabled (blank `Otlp:Endpoint`), nothing listens for traces, so ASP.NET Core may not create an activity at all. Logs then have no `TraceId` (the console shows an empty `[]`), and the problem body's `traceId` falls back to ASP.NET Core's `TraceIdentifier`, which is not a trace ID and will not match anything in Tempo or Loki. Not verified; keep the endpoint set if you rely on trace IDs.
 
 ## Request logging
 

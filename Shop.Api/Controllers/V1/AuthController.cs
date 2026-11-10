@@ -14,7 +14,7 @@ using Shop.Application.Services.Interfaces;
 namespace Shop.Api.Controllers.V1;
 
 [ApiVersion(1.0)]
-public class AuthController(IAuthService authService) : BaseController
+public class AuthController(IAuthService authService, ILogger<AuthController> _logger) : BaseController
 {
     [AllowAnonymous]
     [HttpPost(AuthUriConstants.Register)]
@@ -30,6 +30,8 @@ public class AuthController(IAuthService authService) : BaseController
     public async Task<ApiResult<AuthenticationResponse>> Login(LoginRequest request,
         CancellationToken cancellationToken)
     {
+        var testId = 123;
+        _logger.LogDebug("Request is in login with {TestId}", testId);
         var result = await authService.LoginAsync(request.ToDto(), cancellationToken);
         return result.ToResponse();
     }
