@@ -1,6 +1,7 @@
 using Serilog;
 using Shop.Api;
 using Shop.Api.Extensions;
+using Shop.Api.HealthChecks;
 using Shop.Api.Middleware;
 using Shop.Api.Telemetry;
 using Shop.Application;
@@ -25,6 +26,7 @@ builder.Host.UseSerilog((context, services, configuration) => configuration
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
 builder.Services.AddApi();
+builder.Services.AddShopHealthChecks();
 
 // Traces and metrics; the endpoint comes from the "OpenTelemetry" section in appsettings.json.
 builder.Services.AddOpenTelemetryExport(builder.Configuration, builder.Environment);
@@ -40,6 +42,7 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHealthProbes();
 app.MapSentryTestEndpoint();
 
 app.Run();
