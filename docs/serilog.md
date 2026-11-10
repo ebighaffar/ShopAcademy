@@ -1,6 +1,6 @@
 # Serilog logging
 
-The API uses [Serilog](https://serilog.net) for structured logging. Logs go to the console, to daily rolling files, and to [Seq](https://datalust.co/seq), a local web dashboard for searching them (see [Seq dashboard](#seq-dashboard)).
+The API uses [Serilog](https://serilog.net) for structured logging. Logs go to the console, to daily rolling files, and to [Seq](https://datalust.co/seq), a local web dashboard for searching them (see [Seq dashboard](#seq-dashboard)). They also go to Grafana over OTLP, added in code rather than in `WriteTo` (see [opentelemetry.md](opentelemetry.md)).
 
 ## How it works
 

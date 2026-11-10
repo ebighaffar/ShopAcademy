@@ -12,6 +12,7 @@ using Shop.Infrastructure.Persistence.PostgreSql.Dapper.Repositories;
 using Shop.Infrastructure.Persistence.PostgreSql.EfCore;
 using Shop.Infrastructure.Persistence.PostgreSql.EfCore.Repositories;
 using Shop.Infrastructure.Services;
+using StackExchange.Redis;
 
 namespace Shop.Infrastructure;
 
@@ -92,6 +93,11 @@ public static class DependencyInjection
         services.Configure<RedisSettings>(configuration.GetSection(RedisSettings.SectionName));
 
         services.AddSingleton<RedisConnection>();
+
+        // OpenTelemetry's Redis instrumentation finds the connection to trace through this registration.
+        services.AddSingleton<IConnectionMultiplexer>(provider =>
+            provider.GetRequiredService<RedisConnection>().Multiplexer);
+
         services.AddScoped<ICacheService, RedisCacheService>();
     }
 }

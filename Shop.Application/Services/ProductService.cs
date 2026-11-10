@@ -1,6 +1,7 @@
 using Shop.Application.Caching;
 using Shop.Application.DTOs;
 using Shop.Application.Repositories;
+using Shop.Application.Telemetry;
 using Shop.Domain.Entities;
 using Shop.Domain.Exceptions;
 using Shop.Domain.ValueObjects;
@@ -28,6 +29,8 @@ public class ProductService(
 
     public async Task<ProductDto> CreateAsync(CreateProductDto dto, CancellationToken cancellationToken = default)
     {
+        using var activity = CatalogTelemetry.Source.StartActivity("ProductService.Create");
+
         var product = new Product(dto.Name, dto.Description, new Money(dto.PriceAmount, dto.PriceCurrency), dto.Count,
             dto.CategoryId);
 
@@ -36,12 +39,18 @@ public class ProductService(
 
         await productCache.InvalidateAsync(product.Id, cancellationToken);
 
+        activity?.SetTag(CatalogTelemetry.ProductIdTag, product.Id);
+        CatalogTelemetry.RecordProductChange(CatalogTelemetry.OperationCreated);
+
         return ToDto(product);
     }
 
     public async Task<ProductDto> UpdateAsync(long id, UpdateProductDto dto,
         CancellationToken cancellationToken = default)
     {
+        using var activity = CatalogTelemetry.Source.StartActivity("ProductService.Update");
+        activity?.SetTag(CatalogTelemetry.ProductIdTag, id);
+
         var product = await productRepository.GetByIdAsync(id, cancellationToken)
                       ?? throw new EntityNotFoundException(nameof(Product), id);
 
@@ -51,11 +60,16 @@ public class ProductService(
 
         await productCache.InvalidateAsync(id, cancellationToken);
 
+        CatalogTelemetry.RecordProductChange(CatalogTelemetry.OperationUpdated);
+
         return ToDto(product);
     }
 
     public async Task DeleteAsync(long id, CancellationToken cancellationToken = default)
     {
+        using var activity = CatalogTelemetry.Source.StartActivity("ProductService.Delete");
+        activity?.SetTag(CatalogTelemetry.ProductIdTag, id);
+
         var product = await productRepository.GetByIdAsync(id, cancellationToken)
                       ?? throw new EntityNotFoundException(nameof(Product), id);
 
@@ -64,6 +78,8 @@ public class ProductService(
         await productRepository.SaveChangesAsync(cancellationToken);
 
         await productCache.InvalidateAsync(id, cancellationToken);
+
+        CatalogTelemetry.RecordProductChange(CatalogTelemetry.OperationDeleted);
     }
 
     private static ProductDto ToDto(Product product) => new(

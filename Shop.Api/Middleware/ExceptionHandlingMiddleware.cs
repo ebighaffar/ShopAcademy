@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net;
 using Microsoft.EntityFrameworkCore;
 using Sentry;
@@ -25,8 +26,8 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
             // Only unexpected errors are reported; mapped domain errors (4xx) are expected.
             if (statusCode == HttpStatusCode.InternalServerError)
             {
-                SentrySdk.CaptureMessage("this is a test message !");
                 SentrySdk.CaptureException(ex);
+                Activity.Current?.AddException(ex);
             }
 
             await LogExceptionAsync(context, ex, statusCode, exceptionLogRepository);

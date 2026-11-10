@@ -2,6 +2,7 @@ using Serilog;
 using Shop.Api;
 using Shop.Api.Extensions;
 using Shop.Api.Middleware;
+using Shop.Api.Telemetry;
 using Shop.Application;
 using Shop.Infrastructure;
 
@@ -15,13 +16,18 @@ builder.WebHost.UseSentry(options =>
 });
 
 // Sinks and levels come from the "Serilog" section in appsettings.json.
+    
 builder.Host.UseSerilog((context, services, configuration) => configuration
     .ReadFrom.Configuration(context.Configuration)
-    .ReadFrom.Services(services));
+    .ReadFrom.Services(services)
+    .WriteToOpenTelemetry(context.Configuration, context.HostingEnvironment));
 
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
 builder.Services.AddApi();
+
+// Traces and metrics; the endpoint comes from the "OpenTelemetry" section in appsettings.json.
+builder.Services.AddOpenTelemetryExport(builder.Configuration, builder.Environment);
 
 var app = builder.Build();
 

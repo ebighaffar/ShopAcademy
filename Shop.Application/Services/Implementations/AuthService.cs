@@ -1,7 +1,9 @@
+using System.Diagnostics;
 using Shop.Application.DTOs;
 using Shop.Application.Interfaces;
 using Shop.Application.Repositories;
 using Shop.Application.Services.Interfaces;
+using Shop.Application.Telemetry;
 using Shop.Domain.Constants;
 using Shop.Domain.Entities;
 using Shop.Domain.Exceptions;
@@ -42,11 +44,38 @@ public class AuthService(
     public async Task<AuthenticationDto> LoginAsync(LoginDto dto,
         CancellationToken cancellationToken = default)
     {
-        var user = await userRepository.GetByLoginWithRolesAsync(dto.Login, cancellationToken);
-        if (user is null || !user.IsActive || !passwordHasher.Verify(user, dto.Password))
-            throw new AuthenticationFailedException();
+        using var activity = AuthTelemetry.Source.StartActivity("AuthService.Login");
+        var startedAt = Stopwatch.GetTimestamp();
+        var outcome = AuthTelemetry.OutcomeError;
 
-        return await CreateSessionAsync(user, cancellationToken);
+        try
+        {
+            var user = await userRepository.GetByLoginWithRolesAsync(dto.Login, cancellationToken);
+            if (user is null || !user.IsActive || !passwordHasher.Verify(user, dto.Password))
+                throw new AuthenticationFailedException();
+
+            var session = await CreateSessionAsync(user, cancellationToken);
+
+            outcome = AuthTelemetry.OutcomeSuccess;
+            activity?.SetTag("user.id", user.Id);
+            return session;
+        }
+        catch (AuthenticationFailedException)
+        {
+            // A wrong password is an expected rejection, so the span is not marked as an error.
+            outcome = AuthTelemetry.OutcomeFailed;
+            throw;
+        }
+        catch (Exception)
+        {
+            activity?.SetStatus(ActivityStatusCode.Error);
+            throw;
+        }
+        finally
+        {
+            activity?.SetTag(AuthTelemetry.OutcomeTag, outcome);
+            AuthTelemetry.RecordLogin(outcome, Stopwatch.GetElapsedTime(startedAt).TotalMilliseconds);
+        }
     }
 
     public async Task<AuthenticationDto> RefreshAsync(string rawRefreshToken,
