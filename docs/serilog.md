@@ -50,6 +50,7 @@ Serilog has no dashboard of its own. Seq is a log server with a web UI that is b
 ```bash
 docker run -d --name seq --restart unless-stopped \
   -e ACCEPT_EULA=Y \
+  -e SEQ_FIRSTRUN_NOAUTHENTICATION=true \
   -p 5341:80 \
   -v seq-data:/data \
   datalust/seq
@@ -58,7 +59,8 @@ docker run -d --name seq --restart unless-stopped \
 - UI and ingestion share one port: open <http://localhost:5341>.
 - `-v seq-data:/data` keeps logs across container restarts; leave it out for throwaway logs.
 - Later: `docker stop seq` / `docker start seq`. To remove it: `docker rm -f seq`.
-- With a first-time setup Seq runs without a login. For anything beyond local use, set an admin password (see Seq's docs).
+- Seq refuses to start unless a first-run admin password is set or authentication is explicitly turned off. `SEQ_FIRSTRUN_NOAUTHENTICATION=true` turns it off, which is fine for a local dev container. Without either setting the container exits with `No default admin password was supplied`. For anything beyond local use, set `SEQ_FIRSTRUN_ADMINPASSWORDHASH` instead (see Seq's docs).
+- If a first start failed, remove the half-initialised container and volume before retrying: `docker rm -f seq && docker volume rm seq-data`.
 
 ### Using it
 
